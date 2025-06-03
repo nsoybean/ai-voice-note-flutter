@@ -5,7 +5,7 @@ void main() {
   runApp(const VoiceNoteApp());
 }
 
-// get path to executable
+// Resolves path to native Swift executable
 String resolveHelperPath() {
   if (Platform.isMacOS) {
     final executablePath = File(Platform.resolvedExecutable).parent.path;
@@ -23,35 +23,39 @@ class VoiceNoteApp extends StatelessWidget {
     return MaterialApp(
       title: 'AI Voice Note',
       theme: ThemeData.light(),
-      home: const VoiceNoteHomePage(),
+      home: const VoiceNoteHome(),
     );
   }
 }
 
-class VoiceNoteHomePage extends StatefulWidget {
-  const VoiceNoteHomePage({super.key});
+class VoiceNoteHome extends StatefulWidget {
+  const VoiceNoteHome({super.key});
 
   @override
-  State<VoiceNoteHomePage> createState() => _VoiceNoteHomePageState();
+  State<VoiceNoteHome> createState() => _VoiceNoteHomeState();
 }
 
-class _VoiceNoteHomePageState extends State<VoiceNoteHomePage> {
+class _VoiceNoteHomeState extends State<VoiceNoteHome> {
   bool isRecording = false;
+  Process? recordingProcess;
+  final outputPath = '${Directory.systemTemp.path}/flutter_recording.wav';
 
-  void _startNativeHelper() async {
+  void _startRecording() async {
     final helperPath = resolveHelperPath();
-    final outputPath = '/tmp/flutter_recording.wav';
 
-    print('🔍 Directory.current: ${Directory.current.path}');
-    print('🔍 Checking helper path: $helperPath');
-    print('🔍 File exists: ${File(helperPath).existsSync()}');
+    print('🔍 Starting recording...');
+    print('🔍 Executable path: $helperPath');
+    print('🔍 Recording output path: $outputPath');
 
     try {
+      final process = await Process.start(helperPath, [
+        'start',
+        '--output',
+        outputPath,
+      ]);
+
+      recordingProcess = process;
       setState(() => isRecording = true);
-
-      final process = await Process.start(helperPath, ['--output', outputPath]);
-
-      print('✅ Process started');
 
       process.stdout.transform(SystemEncoding().decoder).listen((data) {
         print('[stdout] $data');
@@ -61,32 +65,39 @@ class _VoiceNoteHomePageState extends State<VoiceNoteHomePage> {
         print('[stderr] $data');
       });
 
-      final exitCode = await process.exitCode;
-      print('[helper] Exited with code: $exitCode');
-
-      setState(() => isRecording = false);
+      process.exitCode.then((code) {
+        print('[helper] Exited with code: $code');
+        if (mounted) setState(() => isRecording = false);
+      });
     } catch (e, stack) {
-      print('❌ Caught exception: $e');
-      print('📄 Stack trace: $stack');
-
-      setState(() => isRecording = false);
-
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Error'),
-            content: Text('Could not start native helper:\n$e'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
+      print('❌ Failed to start recording: $e');
+      print('📄 $stack');
+      _showErrorDialog(e.toString());
     }
+  }
+
+  void _stopRecording() {
+    if (recordingProcess != null) {
+      print('🛑 Stopping recording...');
+      recordingProcess!.kill(ProcessSignal.sigint); // Gracefully stop
+      recordingProcess = null;
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -94,10 +105,16 @@ class _VoiceNoteHomePageState extends State<VoiceNoteHomePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('AI Voice Note')),
       body: Center(
-        child: ElevatedButton(
-          onPressed: _startNativeHelper,
-          child: Text(isRecording ? 'Recording...' : 'Start Recording'),
-        ),
+        child: isRecording
+            ? ElevatedButton(
+                onPressed: _stopRecording,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Stop Recording'),
+              )
+            : ElevatedButton(
+                onPressed: _startRecording,
+                child: const Text('Start Recording'),
+              ),
       ),
     );
   }
