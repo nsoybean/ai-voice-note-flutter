@@ -1,16 +1,19 @@
-# ai_voice_note
+# AI Voice Note
 
-A new Flutter project.
+Welcome! 👋  
+This is my personal attempt at building a macOS app using Flutter, focused on AI-powered voice notes.
 
-## Getting Started
+## What is this?
 
-This project is a starting point for a Flutter application.
+A fun side project to learn Flutter for desktop and experiment with AI features for voice note-taking.  
+Think of it as a smart, simple, and modern way to capture your thoughts on your Mac.
 
-A few resources to get you started if this is your first Flutter project:
+## Why?
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- To explore Flutter's capabilities on macOS
+- To play with AI and voice recognition
+- Because building cool stuff is fun!
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+*Created by Shawbin Nyang*
