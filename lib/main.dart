@@ -22,7 +22,8 @@ class VoiceNoteApp extends StatelessWidget {
     return MaterialApp(
       title: 'AI Voice Note',
       theme: ThemeData.light(),
-      home: const VoiceNoteHome(),
+      // home: const VoiceNoteHome(),
+      home: const NotesHome(),
     );
   }
 }
@@ -187,6 +188,67 @@ class _VoiceNoteHomeState extends State<VoiceNoteHome> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// notes card view
+class NotesHome extends StatelessWidget {
+  const NotesHome({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final mockNotes = [
+      {
+        'title': 'Team meeting summary',
+        'date': DateTime.now().subtract(const Duration(days: 1)),
+      },
+      {
+        'title': 'User feedback notes',
+        'date': DateTime.now().subtract(const Duration(days: 2)),
+      },
+      {
+        'title': 'Weekly marketing ideas',
+        'date': DateTime.now().subtract(const Duration(days: 3)),
+      },
+      {
+        'title': 'Podcast thoughts',
+        'date': DateTime.now().subtract(const Duration(days: 4)),
+      },
+      {
+        'title': 'Client call notes',
+        'date': DateTime.now().subtract(const Duration(days: 5)),
+      },
+    ];
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Notes')),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: mockNotes.length,
+        itemBuilder: (context, index) {
+          final note = mockNotes[index];
+          final title = note['title'] as String;
+          final date = note['date'] as DateTime;
+
+          return Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              title: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(DateFormat('yMMMd • h:mm a').format(date)),
+              onTap: () {
+                // You can navigate to a detailed note view here
+              },
+            ),
+          );
+        },
       ),
     );
   }
