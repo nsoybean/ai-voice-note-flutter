@@ -1,17 +1,19 @@
 import 'dart:io';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 void main() {
   runApp(const VoiceNoteApp());
-}
 
-String resolveHelperPath() {
-  if (Platform.isMacOS) {
-    final executablePath = File(Platform.resolvedExecutable).parent.path;
-    return '$executablePath/../Resources/AudioRecorderHelper';
-  }
-  throw UnsupportedError('Unsupported platform');
+  doWhenWindowReady(() {
+    const initialSize = Size(500, 700);
+    appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
+    appWindow.alignment = Alignment.center;
+    appWindow.title = "AI Voice Note";
+    appWindow.show();
+  });
 }
 
 class VoiceNoteApp extends StatelessWidget {
@@ -20,22 +22,214 @@ class VoiceNoteApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'AI Voice Note',
       theme: ThemeData.light(),
+      home: const HomePage(),
       // home: const VoiceNoteHome(),
-      home: const NotesHome(),
+      // home: const ListOfNotesTest(),
     );
   }
 }
 
-class VoiceNoteHome extends StatefulWidget {
-  const VoiceNoteHome({super.key});
+// home
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<VoiceNoteHome> createState() => _VoiceNoteHomeState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _VoiceNoteHomeState extends State<VoiceNoteHome> {
+class _HomePageState extends State<HomePage> {
+  bool isSidebarExpanded = true;
+  int selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          SizedBox(
+            height: 40, // Match the height of CustomAppBar
+            child: CustomAppBar(
+              onToggleSidebar: () {
+                setState(() {
+                  print('Toggling sidebar');
+                  isSidebarExpanded = !isSidebarExpanded;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                /// Sidebar
+                Column(
+                  children: [
+                    Expanded(
+                      child: NavigationRail(
+                        extended: isSidebarExpanded,
+                        selectedIndex: selectedIndex,
+                        onDestinationSelected: (int index) {
+                          setState(() {
+                            selectedIndex = index;
+                          });
+                        },
+                        trailing: Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: const [
+                              CircleAvatar(radius: 16, child: Text('S')),
+                              SizedBox(height: 8),
+                              Text('Shaw Bin', style: TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        destinations: const [
+                          NavigationRailDestination(
+                            icon: Icon(Icons.notes),
+                            label: Text('My notes'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.folder),
+                            label: Text('Folders'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                // const VerticalDivider(thickness: 1, width: 1),
+
+                /// Main Content
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(
+                      4,
+                    ), // Optional: space around the border
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey.shade500,
+                        width: 0.5,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.blue, width: 0.5),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          'Main content goes here',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomAppBar extends StatelessWidget {
+  final VoidCallback onToggleSidebar;
+
+  const CustomAppBar({super.key, required this.onToggleSidebar});
+
+  @override
+  Widget build(BuildContext context) {
+    return WindowTitleBarBox(
+      child: Container(
+        decoration: BoxDecoration(
+          // border: Border.all(color: Colors.red, width: 2),
+        ),
+
+        // color: Colors.black,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                // border: Border.all(color: Colors.blue, width: 2),
+              ),
+              child: const WindowButtons(),
+            ), // native macOS window controls
+            IconButton(
+              iconSize: 20,
+              icon: const Icon(Icons.menu),
+              tooltip: "Toggle Sidebar",
+              onPressed: onToggleSidebar,
+              // style: ButtonStyle(
+              //   minimumSize: MaterialStateProperty.all(const Size(32, 32)),
+              //   maximumSize: MaterialStateProperty.all(const Size(32, 32)),
+              //   shape: MaterialStateProperty.all(
+              //     RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(6),
+              //     ),
+              //   ),
+              //   overlayColor: MaterialStateProperty.resolveWith<Color?>((
+              //     states,
+              //   ) {
+              //     if (states.contains(MaterialState.hovered)) {
+              //       return Colors.grey.withOpacity(0.2); // subtle hover color
+              //     }
+              //     return null;
+              //   }),
+              //   padding: MaterialStateProperty.all(EdgeInsets.zero),
+              //   backgroundColor: MaterialStateProperty.all(Colors.transparent),
+              // ),
+            ),
+            Expanded(child: MoveWindow()), // remaining space on the right
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Custom window buttons (macOS style)
+class WindowButtons extends StatelessWidget {
+  const WindowButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 70, // Set a fixed width
+      decoration: BoxDecoration(
+        // color: Colors.lightBlue, // Add a background color
+        // border: Border.all(color: Colors.blue, width: 2),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CloseWindowButton(),
+          MinimizeWindowButton(),
+          MaximizeWindowButton(),
+        ],
+      ),
+    );
+  }
+}
+
+// test audio sake
+class RecordAudioTest extends StatefulWidget {
+  const RecordAudioTest({super.key});
+
+  @override
+  State<RecordAudioTest> createState() => _RecordAudioTestState();
+}
+
+class _RecordAudioTestState extends State<RecordAudioTest> {
   bool isRecording = false;
   Process? recordingProcess;
   String? currentRecordingPath;
@@ -67,7 +261,7 @@ class _VoiceNoteHomeState extends State<VoiceNoteHome> {
   }
 
   void _startRecording() async {
-    final helperPath = resolveHelperPath();
+    final helperPath = Utils.resolveHelperPath();
     final outputPath = _generateOutputPath();
     currentRecordingPath = outputPath;
 
@@ -193,9 +387,9 @@ class _VoiceNoteHomeState extends State<VoiceNoteHome> {
   }
 }
 
-// notes card view
-class NotesHome extends StatelessWidget {
-  const NotesHome({super.key});
+// test card view sake
+class ListOfNotesTest extends StatelessWidget {
+  const ListOfNotesTest({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -251,5 +445,16 @@ class NotesHome extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+// utils
+class Utils {
+  static String resolveHelperPath() {
+    if (Platform.isMacOS) {
+      final executablePath = File(Platform.resolvedExecutable).parent.path;
+      return '$executablePath/../Resources/AudioRecorderHelper';
+    }
+    throw UnsupportedError('Unsupported platform');
   }
 }
