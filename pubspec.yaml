@@ -37,6 +37,7 @@ dependencies:
   intl: ^0.20.2
   bitsdojo_window: ^0.1.6
   bitsdojo_window_macos: ^0.1.4
+  http: ^1.4.0
 
 dev_dependencies:
   flutter_test:

@@ -2,13 +2,14 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const VoiceNoteApp());
 
   doWhenWindowReady(() {
-    const initialSize = Size(500, 700);
-    appWindow.minSize = initialSize;
+    const initialSize = Size(1000, 700);
+    appWindow.minSize = Size(500, 700);
     appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;
     appWindow.title = "AI Voice Note";
@@ -111,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                     ), // Optional: space around the border
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey.shade500,
+                        color: Colors.grey.shade400,
                         width: 0.5,
                       ),
                       borderRadius: BorderRadius.circular(16),
@@ -119,13 +120,34 @@ class _HomePageState extends State<HomePage> {
                     child: Center(
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 0.5),
+                          border: Border.all(color: Colors.blue, width: 0.4),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         padding: const EdgeInsets.all(24),
-                        child: Text(
-                          'Main content goes here',
-                          style: Theme.of(context).textTheme.bodySmall,
+                        child: Row(
+                          children: [
+                            Text(
+                              'Main content goes here',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            IconButton(
+                              iconSize: 20,
+                              icon: const Icon(Icons.http),
+                              tooltip: "Test API",
+                              onPressed: () async {
+                                // call api
+                                try {
+                                  final response =
+                                      await ApiService.fetchExample();
+                                  print(
+                                    'API Response: \\nStatus: \\${response.statusCode}\\nBody: \\${response.body}',
+                                  );
+                                } catch (e) {
+                                  print('Error calling API: \\${e.toString()}');
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -457,4 +479,17 @@ class Utils {
     }
     throw UnsupportedError('Unsupported platform');
   }
+}
+
+/// Simple API service for calling local endpoints
+class ApiService {
+  static const String baseUrl = 'http://127.0.0.1:3000';
+
+  /// Example GET request
+  static Future<http.Response> fetchExample() async {
+    final url = Uri.parse('$baseUrl/');
+    return await http.get(url);
+  }
+
+  // Add more methods for other endpoints as needed
 }
