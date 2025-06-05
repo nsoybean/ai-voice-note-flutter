@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
+import 'package:ai_voice_note/theme/brand_colors.dart';
+import 'package:ai_voice_note/theme/theme_data.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -26,8 +29,9 @@ class VoiceNoteApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AI Voice Note',
-      theme: ThemeData.light(),
-      home: const HomePage(),
+      theme: lightTheme,
+      home: const AuthHomePage(),
+      // home: const HomePage(),
       // home: const VoiceNoteHome(),
       // home: const ListOfNotesTest(),
     );
@@ -133,6 +137,23 @@ class _HomePageState extends State<HomePage> {
                               iconSize: 20,
                               icon: const Icon(Icons.http),
                               tooltip: "Test API",
+                              onPressed: () async {
+                                // call api
+                                try {
+                                  final response =
+                                      await ApiService.fetchExample();
+                                  print(
+                                    'API Response: \\nStatus: \\${response.statusCode}\\nBody: \\${response.body}',
+                                  );
+                                } catch (e) {
+                                  print('Error calling API: \\${e.toString()}');
+                                }
+                              },
+                            ),
+                            IconButton(
+                              iconSize: 20,
+                              icon: const Icon(Icons.login),
+                              tooltip: "Login",
                               onPressed: () async {
                                 // call api
                                 try {
