@@ -39,6 +39,9 @@ dependencies:
   bitsdojo_window_macos: ^0.1.4
   http: ^1.4.0
   flutter_riverpod: ^2.6.1
+  googleapis_auth: ^2.0.0
+  url_launcher: ^6.3.1
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -62,7 +65,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - .env.dev
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
