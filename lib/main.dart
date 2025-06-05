@@ -5,11 +5,12 @@ import 'package:ai_voice_note/theme/brand_colors.dart';
 import 'package:ai_voice_note/theme/theme_data.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const VoiceNoteApp());
+  runApp(const ProviderScope(child: VoiceNoteApp()));
 
   doWhenWindowReady(() {
     const initialSize = Size(1050, 700);

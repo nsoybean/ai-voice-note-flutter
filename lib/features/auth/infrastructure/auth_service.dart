@@ -8,12 +8,13 @@ final authServiceProvider = Provider<AuthService>((_) => AuthService());
 
 class AuthService {
   Future<AuthUser?> signInWithGoogle() async {
-    // For demo: mock response from your backend
-    final res = await http.post(
-      Uri.parse('https://http://127.0.0.1:3000/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({/* your auth token here */}),
+    final res = await http.get(
+      Uri.parse('http://127.0.0.1:3000/'),
+      // headers: {'Content-Type': 'application/json'},
+      // body: jsonEncode({/* your auth token here */}),
     );
+
+    print("🚀 AuthService ${res.body}");
 
     if (res.statusCode == 200) {
       return AuthUser.fromJson(jsonDecode(res.body));

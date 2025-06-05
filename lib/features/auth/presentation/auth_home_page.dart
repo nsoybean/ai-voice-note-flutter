@@ -1,18 +1,21 @@
+import 'package:ai_voice_note/features/auth/application/auth_controller.dart';
+import 'package:ai_voice_note/main.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
 import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Auth home page
-class AuthHomePage extends StatefulWidget {
+class AuthHomePage extends ConsumerStatefulWidget {
   const AuthHomePage({super.key});
 
   @override
-  State<AuthHomePage> createState() => _AuthHomePageState();
+  ConsumerState<AuthHomePage> createState() => _AuthHomePageState();
 }
 
-class _AuthHomePageState extends State<AuthHomePage> {
+class _AuthHomePageState extends ConsumerState<AuthHomePage> {
   bool agreedToTerms = false;
   bool isDarkMode = true;
 
@@ -61,6 +64,16 @@ class _AuthHomePageState extends State<AuthHomePage> {
               onPressed: agreedToTerms
                   ? () async {
                       print('Clicky click');
+                      final user = await ref
+                          .read(authControllerProvider)
+                          .signInWithGoogle();
+
+                      if (user != null) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const HomePage()),
+                        );
+                      }
                     }
                   : null,
             ),
