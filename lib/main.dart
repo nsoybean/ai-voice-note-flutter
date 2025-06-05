@@ -8,7 +8,7 @@ void main() {
   runApp(const VoiceNoteApp());
 
   doWhenWindowReady(() {
-    const initialSize = Size(1000, 700);
+    const initialSize = Size(1050, 700);
     appWindow.minSize = Size(500, 700);
     appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;
@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
                     Expanded(
                       child: NavigationRail(
                         extended: isSidebarExpanded,
+                        useIndicator: true,
                         selectedIndex: selectedIndex,
                         onDestinationSelected: (int index) {
                           setState(() {
@@ -78,8 +79,9 @@ class _HomePageState extends State<HomePage> {
                         },
                         trailing: Padding(
                           padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: 6,
                             children: const [
                               CircleAvatar(radius: 16, child: Text('S')),
                               SizedBox(height: 8),
@@ -89,8 +91,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                         destinations: const [
                           NavigationRailDestination(
-                            icon: Icon(Icons.notes),
-                            label: Text('My notes'),
+                            icon: Icon(Icons.home),
+                            label: Text('Home'),
+                            indicatorShape: CircleBorder(),
                           ),
                           NavigationRailDestination(
                             icon: Icon(Icons.folder),
@@ -115,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.grey.shade400,
                         width: 0.5,
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
                       child: Container(
@@ -180,9 +183,7 @@ class CustomAppBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              decoration: BoxDecoration(
-                // border: Border.all(color: Colors.blue, width: 2),
-              ),
+              // margin: const EdgeInsets.only(top: 9), // not working
               child: const WindowButtons(),
             ), // native macOS window controls
             IconButton(
