@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -77,18 +78,6 @@ class _HomePageState extends State<HomePage> {
                             selectedIndex = index;
                           });
                         },
-                        trailing: Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: 6,
-                            children: const [
-                              CircleAvatar(radius: 16, child: Text('S')),
-                              SizedBox(height: 8),
-                              Text('Shaw Bin', style: TextStyle(fontSize: 12)),
-                            ],
-                          ),
-                        ),
                         destinations: const [
                           NavigationRailDestination(
                             icon: Icon(Icons.home),
@@ -100,6 +89,13 @@ class _HomePageState extends State<HomePage> {
                             label: Text('Folders'),
                           ),
                         ],
+
+                        trailing: Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: _HoverableProfile(
+                            isExpanded: isSidebarExpanded,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -115,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                     ), // Optional: space around the border
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey.shade400,
+                        color: Colors.grey.shade300,
                         width: 0.5,
                       ),
                       borderRadius: BorderRadius.circular(10),
@@ -160,6 +156,89 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// hoverable profile
+class _HoverableProfile extends StatefulWidget {
+  final bool isExpanded;
+
+  const _HoverableProfile({required this.isExpanded});
+
+  @override
+  State<_HoverableProfile> createState() => _HoverableProfileState();
+}
+
+class _HoverableProfileState extends State<_HoverableProfile> {
+  bool isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovering = true),
+      onExit: (_) => setState(() => isHovering = false),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 0),
+        width: widget.isExpanded ? 250 : 60,
+        decoration: BoxDecoration(
+          color: isHovering ? Colors.grey.shade200 : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: PopupMenuButton<String>(
+          tooltip: 'User menu',
+          offset: const Offset(0, -10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          onSelected: (value) {
+            if (value == 'settings') {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Settings'),
+                  content: const Text('Settings page goes here.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem<String>(
+              value: 'settings',
+              child: ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('Settings'),
+              ),
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: widget.isExpanded
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      CircleAvatar(radius: 16, child: Text('S')),
+                      SizedBox(width: 8),
+                      Text('Shaw Bin', style: TextStyle(fontSize: 12)),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      CircleAvatar(radius: 16, child: Text('S')),
+                      SizedBox(height: 4),
+                      Text('Shaw Bin', style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+          ),
+        ),
       ),
     );
   }
