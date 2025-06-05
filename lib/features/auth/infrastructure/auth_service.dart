@@ -40,7 +40,57 @@ class AuthService {
     request.response
       ..statusCode = 200
       ..headers.set('Content-Type', 'text/html')
-      ..write('<h3>You can now return to the app.</h3>')
+      ..write('''
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login Successful</title>
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #F9FAFB 0%, #EDF0FF 100%);
+        color: #111827;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .notice {
+        background: white;
+        padding: 32px 40px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        text-align: center;
+        max-width: 420px;
+      }
+
+      .notice h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        background: linear-gradient(to right, #4A6CF7, #758DFF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .notice p {
+        font-size: 16px;
+        color: #6B7280;
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="notice">
+      <h1>You're logged in</h1>
+      <p>You may now return to the AI Voice Note app.</p>
+    </div>
+  </body>
+</html>
+''')
       ..close();
 
     server.close();
