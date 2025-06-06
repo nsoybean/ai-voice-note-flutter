@@ -106,43 +106,48 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Main content goes here',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: BrandColors.textDark),
+                    child: Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        IconButton(
-                          icon: const Icon(Icons.http),
-                          tooltip: "Test API",
-                          onPressed: () async {
-                            try {
-                              final response = await ApiService.fetchExample();
-                              print(
-                                'API Response: \\${response.statusCode} - \\${response.body}',
-                              );
-                            } catch (e) {
-                              print('API error: \\${e}');
-                            }
-                          },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Your Notes',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    color: BrandColors.textDark,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            const SizedBox(height: 16),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Wrap(
+                                  spacing: 16,
+                                  runSpacing: 16,
+                                  children: List.generate(
+                                    6,
+                                    (index) => _VoiceNoteCard(index),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.login),
-                          tooltip: "Login",
-                          onPressed: () async {
-                            try {
-                              final response = await ApiService.fetchExample();
-                              print(
-                                'API Response: \\${response.statusCode} - \\${response.body}',
-                              );
-                            } catch (e) {
-                              print('Login error: \\${e}');
-                            }
-                          },
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -282,4 +287,70 @@ class WindowButtons extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _VoiceNoteCard(int index) {
+  return SizedBox(
+    width: 280,
+    child: Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFE5E7EB)), // light gray
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Meeting with Product Team',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: BrandColors.textDark,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '“Let’s prioritize onboarding fixes before the new release...”',
+            style: TextStyle(
+              fontSize: 14,
+              color: BrandColors.subtext,
+              height: 1.4,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Jun 5 · 12:32 PM',
+                style: TextStyle(fontSize: 12, color: BrandColors.subtext),
+              ),
+              Row(
+                children: const [
+                  Icon(Icons.play_arrow, size: 20, color: BrandColors.primary),
+                  SizedBox(width: 8),
+                  Icon(
+                    Icons.auto_awesome,
+                    size: 18,
+                    color: BrandColors.primary,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
 }
