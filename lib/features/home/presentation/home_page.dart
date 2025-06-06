@@ -139,17 +139,23 @@ class _HoverableProfileState extends State<_HoverableProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = isHovering
+        ? const Color(0xFFF3F4F6)
+        : Colors.transparent; // light hover
+
     return MouseRegion(
       onEnter: (_) => setState(() => isHovering = true),
       onExit: (_) => setState(() => isHovering = false),
       child: Container(
         width: widget.isExpanded ? 220 : 56,
         decoration: BoxDecoration(
-          color: isHovering ? Colors.grey.shade100 : Colors.transparent,
+          color: bgColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: PopupMenuButton<String>(
           offset: const Offset(0, -10),
+          color: Colors.white,
+          elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -159,8 +165,17 @@ class _HoverableProfileState extends State<_HoverableProfile> {
               showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
-                  title: const Text('Settings'),
-                  content: const Text('Settings page goes here.'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  title: Text('Settings', style: BrandTextStyles.h2),
+                  content: Text(
+                    'Settings page goes here.',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: BrandColors.subtext,
+                    ),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
@@ -175,8 +190,11 @@ class _HoverableProfileState extends State<_HoverableProfile> {
             PopupMenuItem(
               value: 'settings',
               child: ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Settings'),
+                leading: Icon(Icons.settings, color: BrandColors.primary),
+                title: Text(
+                  'Settings',
+                  style: TextStyle(fontSize: 14, color: BrandColors.textDark),
+                ),
               ),
             ),
           ],
@@ -185,16 +203,37 @@ class _HoverableProfileState extends State<_HoverableProfile> {
             child: widget.isExpanded
                 ? Row(
                     children: const [
-                      CircleAvatar(radius: 16, child: Text('S')),
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: BrandColors.primary,
+                        child: Text('S', style: TextStyle(color: Colors.white)),
+                      ),
                       SizedBox(width: 8),
-                      Text('Shaw Bin', style: TextStyle(fontSize: 13)),
+                      Text(
+                        'Shaw Bin',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: BrandColors.textDark,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   )
                 : Column(
                     children: const [
-                      CircleAvatar(radius: 16, child: Text('S')),
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor: BrandColors.primary,
+                        child: Text('S', style: TextStyle(color: Colors.white)),
+                      ),
                       SizedBox(height: 4),
-                      Text('SB', style: TextStyle(fontSize: 11)),
+                      Text(
+                        'SB',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: BrandColors.subtext,
+                        ),
+                      ),
                     ],
                   ),
           ),
