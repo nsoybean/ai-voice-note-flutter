@@ -14,7 +14,7 @@ void main() async {
   runApp(const ProviderScope(child: VoiceNoteApp()));
 
   doWhenWindowReady(() {
-    const initialSize = Size(1050, 700);
+    const initialSize = Size(1020, 780);
     appWindow.minSize = Size(500, 700);
     appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;

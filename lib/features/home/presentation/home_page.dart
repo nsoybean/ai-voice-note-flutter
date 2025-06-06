@@ -1,7 +1,8 @@
-import 'package:ai_voice_note/main.dart';
-import 'package:ai_voice_note/test.dart';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+// Redesigned HomePage with AI Voice Note brand kit
 import 'package:flutter/material.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:ai_voice_note/theme/brand_colors.dart';
+import 'package:ai_voice_note/test.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,123 +18,131 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: BrandColors.backgroundLight,
       body: Column(
         children: [
           SizedBox(
-            height: 40, // Match the height of CustomAppBar
+            height: 40,
             child: CustomAppBar(
               onToggleSidebar: () {
-                setState(() {
-                  print('Toggling sidebar');
-                  isSidebarExpanded = !isSidebarExpanded;
-                });
+                setState(() => isSidebarExpanded = !isSidebarExpanded);
               },
+              isAtHomePage: selectedIndex == 0 ? true : false,
             ),
           ),
           Expanded(
             child: Row(
               children: [
-                /// Sidebar
-                Column(
-                  children: [
-                    Expanded(
-                      child: NavigationRail(
-                        extended: isSidebarExpanded,
-                        useIndicator: true,
-                        selectedIndex: selectedIndex,
-                        onDestinationSelected: (int index) {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
-                        destinations: const [
-                          NavigationRailDestination(
-                            icon: Icon(Icons.home),
-                            label: Text('Home'),
-                            indicatorShape: CircleBorder(),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  width: isSidebarExpanded ? 240 : 0,
+                  child: isSidebarExpanded
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                              right: BorderSide(
+                                color: Colors.grey.shade200,
+                                width: 1,
+                              ),
+                            ),
                           ),
-                          NavigationRailDestination(
-                            icon: Icon(Icons.folder),
-                            label: Text('Folders'),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: NavigationRail(
+                                  extended:
+                                      isSidebarExpanded, // Ensure it collapses when the sidebar is collapsed
+                                  selectedIndex: selectedIndex,
+                                  useIndicator: true,
+                                  indicatorColor: BrandColors.primary,
+                                  selectedIconTheme: const IconThemeData(
+                                    color: BrandColors.backgroundLight,
+                                  ),
+                                  onDestinationSelected: (index) {
+                                    setState(() => selectedIndex = index);
+                                  },
+                                  destinations: const [
+                                    NavigationRailDestination(
+                                      icon: Icon(Icons.home),
+                                      label: Text('Home'),
+                                    ),
+                                    NavigationRailDestination(
+                                      icon: Icon(Icons.folder),
+                                      label: Text('Folders'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: AnimatedSize(
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeInOut,
+                                  child: _HoverableProfile(
+                                    isExpanded: isSidebarExpanded,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-
-                        trailing: Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: _HoverableProfile(
-                            isExpanded: isSidebarExpanded,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                        )
+                      : null,
                 ),
-
-                // const VerticalDivider(thickness: 1, width: 1),
-
-                /// Main Content
+                // Main Content
                 Expanded(
                   child: Container(
-                    margin: const EdgeInsets.all(
-                      4,
-                    ), // Optional: space around the border
+                    margin: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 0.5,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.blue, width: 0.4),
-                          borderRadius: BorderRadius.circular(16),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Main content goes here',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: BrandColors.textDark),
                         ),
-                        padding: const EdgeInsets.all(24),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Main content goes here',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            IconButton(
-                              iconSize: 20,
-                              icon: const Icon(Icons.http),
-                              tooltip: "Test API",
-                              onPressed: () async {
-                                // call api
-                                try {
-                                  final response =
-                                      await ApiService.fetchExample();
-                                  print(
-                                    'API Response: \\nStatus: \\${response.statusCode}\\nBody: \\${response.body}',
-                                  );
-                                } catch (e) {
-                                  print('Error calling API: \\${e.toString()}');
-                                }
-                              },
-                            ),
-                            IconButton(
-                              iconSize: 20,
-                              icon: const Icon(Icons.login),
-                              tooltip: "Login",
-                              onPressed: () async {
-                                // call api
-                                try {
-                                  final response =
-                                      await ApiService.fetchExample();
-                                  print(
-                                    'API Response: \\nStatus: \\${response.statusCode}\\nBody: \\${response.body}',
-                                  );
-                                } catch (e) {
-                                  print('Error calling API: \\${e.toString()}');
-                                }
-                              },
-                            ),
-                          ],
+                        const SizedBox(width: 16),
+                        IconButton(
+                          icon: const Icon(Icons.http),
+                          tooltip: "Test API",
+                          onPressed: () async {
+                            try {
+                              final response = await ApiService.fetchExample();
+                              print(
+                                'API Response: \\${response.statusCode} - \\${response.body}',
+                              );
+                            } catch (e) {
+                              print('API error: \\${e}');
+                            }
+                          },
                         ),
-                      ),
+                        IconButton(
+                          icon: const Icon(Icons.login),
+                          tooltip: "Login",
+                          onPressed: () async {
+                            try {
+                              final response = await ApiService.fetchExample();
+                              print(
+                                'API Response: \\${response.statusCode} - \\${response.body}',
+                              );
+                            } catch (e) {
+                              print('Login error: \\${e}');
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -146,10 +155,8 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-/// hoverable profile
 class _HoverableProfile extends StatefulWidget {
   final bool isExpanded;
-
   const _HoverableProfile({required this.isExpanded});
 
   @override
@@ -165,28 +172,27 @@ class _HoverableProfileState extends State<_HoverableProfile> {
       onEnter: (_) => setState(() => isHovering = true),
       onExit: (_) => setState(() => isHovering = false),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 0),
-        width: widget.isExpanded ? 250 : 60,
+        width: widget.isExpanded ? 220 : 56,
         decoration: BoxDecoration(
-          color: isHovering ? Colors.grey.shade200 : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          color: isHovering ? Colors.grey.shade100 : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
         child: PopupMenuButton<String>(
-          tooltip: 'User menu',
           offset: const Offset(0, -10),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
+          tooltip: 'User menu',
           onSelected: (value) {
             if (value == 'settings') {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
+                builder: (_) => AlertDialog(
                   title: const Text('Settings'),
                   content: const Text('Settings page goes here.'),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.pop(context),
                       child: const Text('Close'),
                     ),
                   ],
@@ -194,8 +200,8 @@ class _HoverableProfileState extends State<_HoverableProfile> {
               );
             }
           },
-          itemBuilder: (context) => const [
-            PopupMenuItem<String>(
+          itemBuilder: (_) => const [
+            PopupMenuItem(
               value: 'settings',
               child: ListTile(
                 leading: Icon(Icons.settings),
@@ -207,19 +213,17 @@ class _HoverableProfileState extends State<_HoverableProfile> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: widget.isExpanded
                 ? Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: const [
                       CircleAvatar(radius: 16, child: Text('S')),
                       SizedBox(width: 8),
-                      Text('Shaw Bin', style: TextStyle(fontSize: 12)),
+                      Text('Shaw Bin', style: TextStyle(fontSize: 13)),
                     ],
                   )
                 : Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: const [
                       CircleAvatar(radius: 16, child: Text('S')),
                       SizedBox(height: 4),
-                      Text('Shaw Bin', style: TextStyle(fontSize: 12)),
+                      Text('SB', style: TextStyle(fontSize: 11)),
                     ],
                   ),
           ),
@@ -231,73 +235,45 @@ class _HoverableProfileState extends State<_HoverableProfile> {
 
 class CustomAppBar extends StatelessWidget {
   final VoidCallback onToggleSidebar;
+  final bool isAtHomePage;
 
-  const CustomAppBar({super.key, required this.onToggleSidebar});
+  const CustomAppBar({
+    super.key,
+    required this.onToggleSidebar,
+    required this.isAtHomePage,
+  });
 
   @override
   Widget build(BuildContext context) {
     return WindowTitleBarBox(
-      child: Container(
-        decoration: BoxDecoration(
-          // border: Border.all(color: Colors.red, width: 2),
-        ),
-
-        // color: Colors.black,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              // margin: const EdgeInsets.only(top: 9), // not working
-              child: const WindowButtons(),
-            ), // native macOS window controls
-            IconButton(
-              iconSize: 20,
-              icon: const Icon(Icons.menu),
-              tooltip: "Toggle Sidebar",
-              onPressed: onToggleSidebar,
-              // style: ButtonStyle(
-              //   minimumSize: MaterialStateProperty.all(const Size(32, 32)),
-              //   maximumSize: MaterialStateProperty.all(const Size(32, 32)),
-              //   shape: MaterialStateProperty.all(
-              //     RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(6),
-              //     ),
-              //   ),
-              //   overlayColor: MaterialStateProperty.resolveWith<Color?>((
-              //     states,
-              //   ) {
-              //     if (states.contains(MaterialState.hovered)) {
-              //       return Colors.grey.withOpacity(0.2); // subtle hover color
-              //     }
-              //     return null;
-              //   }),
-              //   padding: MaterialStateProperty.all(EdgeInsets.zero),
-              //   backgroundColor: MaterialStateProperty.all(Colors.transparent),
-              // ),
-            ),
-            Expanded(child: MoveWindow()), // remaining space on the right
-          ],
-        ),
+      child: Row(
+        children: [
+          const WindowButtons(),
+          IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Toggle Sidebar',
+            onPressed: onToggleSidebar,
+          ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back, size: 18),
+            tooltip: 'Go Back',
+            onPressed: isAtHomePage ? null : () => Navigator.of(context).pop(),
+          ),
+          Expanded(child: MoveWindow()),
+        ],
       ),
     );
   }
 }
 
-/// Custom window buttons (macOS style)
 class WindowButtons extends StatelessWidget {
   const WindowButtons({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 70, // Set a fixed width
-      decoration: BoxDecoration(
-        // color: Colors.lightBlue, // Add a background color
-        // border: Border.all(color: Colors.blue, width: 2),
-      ),
+    return SizedBox(
+      width: 70,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CloseWindowButton(),
           MinimizeWindowButton(),
