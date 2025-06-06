@@ -194,16 +194,32 @@ class _HoverableProfileState extends State<_HoverableProfile> {
                   ],
                 ),
               );
+            } else if (value == 'logout') {
+              // Handle logout
+              AuthStorage().clearUser();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const AuthHomePage()),
+              );
             }
           },
-          itemBuilder: (_) => const [
+          itemBuilder: (_) => [
             PopupMenuItem(
               value: 'settings',
               child: ListTile(
-                leading: Icon(Icons.settings, color: BrandColors.primary),
+                leading: Icon(Icons.settings, color: Colors.black),
                 title: Text(
                   'Settings',
-                  style: TextStyle(fontSize: 14, color: BrandColors.textDark),
+                  style: BrandTextStyles.small.copyWith(color: Colors.black),
+                ),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'logout',
+              child: ListTile(
+                leading: Icon(Icons.logout, color: Colors.red),
+                title: Text(
+                  'Log Out',
+                  style: BrandTextStyles.small.copyWith(color: Colors.red),
                 ),
               ),
             ),
@@ -331,52 +347,6 @@ class CustomAppBar extends StatelessWidget {
               ),
             ),
           ),
-          Consumer(
-            builder: (context, ref, child) => Container(
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: BrandSpacing.md,
-                    vertical: BrandSpacing.md,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BrandRadius.medium,
-                  ),
-                  foregroundColor: Colors.red, // Red text for logout button
-                ),
-                onPressed: () async {
-                  // clear
-                  await AuthStorage().clearUser();
-
-                  // navigate to AuthHomePage
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const AuthHomePage(),
-                    ),
-                  ); // Navigate to AuthHomePage
-                },
-                child: const Text(
-                  'Log Out',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ),
-
-          // ElevatedButton.icon(
-          //   style: ElevatedButton.styleFrom(
-          //     backgroundColor: Colors.white,
-          //     foregroundColor: BrandColors.backgroundDark,
-          //     padding: const EdgeInsets.symmetric(
-          //       horizontal: BrandSpacing.lg,
-          //       vertical: BrandSpacing.md,
-          //     ),
-          //     shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
-          //   ),
-          //   icon: const Icon(Icons.login, size: 20),
-          //   label: const Text("Sign in with Google"),
-          //   onPressed: () async {},
-          // ),
         ],
       ),
     );
