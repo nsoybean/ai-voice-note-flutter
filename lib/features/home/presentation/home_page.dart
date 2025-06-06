@@ -1,4 +1,5 @@
 // Redesigned HomePage with AI Voice Note brand kit
+import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,7 @@ class _HomePageState extends State<HomePage> {
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeInOut,
-                  width: isSidebarExpanded ? 240 : 0,
+                  width: isSidebarExpanded ? 200 : 0,
                   child: isSidebarExpanded
                       ? Container(
                           decoration: BoxDecoration(
@@ -105,7 +106,7 @@ class _HomePageState extends State<HomePage> {
                         child: ListView(
                           padding: const EdgeInsets.symmetric(
                             vertical: 32,
-                            horizontal: BrandSpacing.xl,
+                            horizontal: BrandSpacing.xxl,
                           ),
                           children: [
                             _buildDateSection("Today", [1, 2]),
@@ -147,10 +148,12 @@ class _HoverableProfileState extends State<_HoverableProfile> {
       onEnter: (_) => setState(() => isHovering = true),
       onExit: (_) => setState(() => isHovering = false),
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: BrandSpacing.sm),
         width: widget.isExpanded ? 220 : 56,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(12),
+          // border: Border.all(color: BrandColors.backgroundDark),
         ),
         child: PopupMenuButton<String>(
           offset: const Offset(0, -10),
@@ -270,6 +273,40 @@ class CustomAppBar extends StatelessWidget {
             onPressed: isAtHomePage ? null : () => Navigator.of(context).pop(),
           ),
           Expanded(child: MoveWindow()),
+          Container(
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: BrandSpacing.md,
+                  vertical: BrandSpacing.md,
+                ),
+                shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
+                iconColor: BrandColors.backgroundDark,
+              ),
+              onPressed: () async {},
+              child: Text(
+                'Create Note',
+                style: BrandTextStyles.small.copyWith(
+                  color: BrandColors.textDark,
+                ),
+              ),
+            ),
+          ),
+
+          // ElevatedButton.icon(
+          //   style: ElevatedButton.styleFrom(
+          //     backgroundColor: Colors.white,
+          //     foregroundColor: BrandColors.backgroundDark,
+          //     padding: const EdgeInsets.symmetric(
+          //       horizontal: BrandSpacing.lg,
+          //       vertical: BrandSpacing.md,
+          //     ),
+          //     shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
+          //   ),
+          //   icon: const Icon(Icons.login, size: 20),
+          //   label: const Text("Sign in with Google"),
+          //   onPressed: () async {},
+          // ),
         ],
       ),
     );
