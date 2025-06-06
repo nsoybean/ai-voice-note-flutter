@@ -63,7 +63,6 @@ class _AuthHomePageState extends ConsumerState<AuthHomePage> {
               label: const Text("Sign in with Google"),
               onPressed: agreedToTerms
                   ? () async {
-                      print('Clicky click');
                       final user = await ref
                           .read(authControllerProvider)
                           .signInWithGoogle();
