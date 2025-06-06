@@ -38,6 +38,7 @@ class AuthStorage {
     final picture = prefs.getString('picture');
     final id = prefs.getString('id');
     final createdAt = prefs.getString('createdAt');
+    final jwt = prefs.getString('jwt');
 
     if (name != null && email != null) {
       return AuthUser(
@@ -45,7 +46,7 @@ class AuthStorage {
         name: name,
         email: email,
         picture: picture ?? '',
-        jwt: '',
+        jwt: jwt ?? '',
         createdAt: createdAt != null
             ? DateTime.parse(createdAt)
             : DateTime.now(),
