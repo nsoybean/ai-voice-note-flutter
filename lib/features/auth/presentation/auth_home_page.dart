@@ -1,5 +1,7 @@
+import 'dart:convert';
+
 import 'package:ai_voice_note/features/auth/application/auth_controller.dart';
-import 'package:ai_voice_note/main.dart';
+import 'package:ai_voice_note/features/home/presentation/home_page.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
 import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
@@ -67,12 +69,23 @@ class _AuthHomePageState extends ConsumerState<AuthHomePage> {
                           .read(authControllerProvider)
                           .signInWithGoogle();
 
-                      if (user != null) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const HomePage()),
-                        );
+                      if (user == null) {
+                        print('❌ Sign in failed');
+                        return;
                       }
+
+                      // ✅ Successfully signed in
+                      print(
+                        '✅ User signed in:\n'
+                        'ID: ${user.id}\n'
+                        'Name: ${user.name}\n'
+                        'Email: ${user.email}',
+                      );
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomePage()),
+                      );
                     }
                   : null,
             ),
