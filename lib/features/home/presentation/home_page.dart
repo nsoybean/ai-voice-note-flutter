@@ -1,4 +1,6 @@
 // Redesigned HomePage with AI Voice Note brand kit
+import 'package:ai_voice_note/theme/brand_spacing.dart';
+import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
@@ -92,59 +94,23 @@ class _HomePageState extends State<HomePage> {
                 ),
                 // Main Content
                 Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(8),
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Expanded(
+                  child: Expanded(
+                    child: Center(
                       child: Container(
-                        margin: const EdgeInsets.all(8),
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: BrandSpacing.xs,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        // padding: const EdgeInsets.symmetric(horizontal: 24),
+                        // constraints: const BoxConstraints(maxWidth: 720),
+                        child: ListView(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 32,
+                            horizontal: BrandSpacing.xl,
+                          ),
                           children: [
-                            Text(
-                              'Your Notes',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    color: BrandColors.textDark,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            const SizedBox(height: 16),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Wrap(
-                                  spacing: 16,
-                                  runSpacing: 16,
-                                  children: List.generate(
-                                    6,
-                                    (index) => _VoiceNoteCard(index),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            _buildDateSection("Today", [1, 2]),
+                            _buildDateSection("Yesterday", [3]),
+                            _buildDateSection("June 4, 2025", [4, 5]),
                           ],
                         ),
                       ),
@@ -351,6 +317,87 @@ Widget _VoiceNoteCard(int index) {
           ),
         ],
       ),
+    ),
+  );
+}
+
+Widget _buildDateSection(String label, List<int> noteIds) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: BrandTextStyles.small,
+        // const TextStyle(
+        //   fontSize: ,
+        //   fontWeight: FontWeight.w500,
+        //   color: BrandColors.subtext,
+        // ),
+      ),
+      const SizedBox(height: 12),
+      ...noteIds.map((id) => _voiceNoteCard(id)).toList(),
+      const SizedBox(height: 32),
+    ],
+  );
+}
+
+Widget _voiceNoteCard(int index) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.03),
+          blurRadius: 6,
+          offset: const Offset(0, 1),
+        ),
+      ],
+      border: Border.all(color: const Color(0xFFE5E7EB)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Optional: Add a very subtle title
+        Text(
+          'Team Sync #$index',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: BrandColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
+          style: TextStyle(
+            fontSize: 13,
+            color: BrandColors.subtext,
+            height: 1.4,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '12:32 PM',
+              style: TextStyle(fontSize: 12, color: BrandColors.subtext),
+            ),
+            Row(
+              children: const [
+                Icon(Icons.play_arrow, size: 18, color: BrandColors.primary),
+                SizedBox(width: 6),
+                Icon(Icons.auto_awesome, size: 16, color: BrandColors.primary),
+              ],
+            ),
+          ],
+        ),
+      ],
     ),
   );
 }
