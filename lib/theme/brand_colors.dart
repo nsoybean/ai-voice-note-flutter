@@ -9,6 +9,9 @@ class BrandColors {
   static const Color subtext = Color(
     0xFF6B7280,
   ); // Cool grey for secondary text
+  static const Color subtleGrey = Color(
+    0xFFF3F4F6,
+  ); // Cool grey for secondary text
 
   // 📝 Text Colors
   static const Color textDark = Color(
@@ -20,4 +23,9 @@ class BrandColors {
   static const Color darkSurface = Color(
     0xFF1F2937,
   ); // Dark surface for cards/panels
+
+  // ✅ Status Colors
+  static const Color success = Color(0xFFD1FAE5); // Light pastel green
+  static const Color warning = Color(0xFFFFF7CD); // Light pastel yellow
+  static const Color error = Color(0xFFFECACA); // Light pastel red
 }

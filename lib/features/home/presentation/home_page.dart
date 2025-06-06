@@ -1,11 +1,15 @@
 // Redesigned HomePage with AI Voice Note brand kit
+
+import 'package:ai_voice_note/features/auth/application/auth_controller.dart';
+import 'package:ai_voice_note/features/note/application/note_controller.dart';
+import 'package:ai_voice_note/features/shared/elements.dart';
 import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
-import 'package:ai_voice_note/test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -141,7 +145,7 @@ class _HoverableProfileState extends State<_HoverableProfile> {
   @override
   Widget build(BuildContext context) {
     final bgColor = isHovering
-        ? const Color(0xFFF3F4F6)
+        ? BrandColors.subtleGrey
         : Colors.transparent; // light hover
 
     return MouseRegion(
@@ -273,21 +277,53 @@ class CustomAppBar extends StatelessWidget {
             onPressed: isAtHomePage ? null : () => Navigator.of(context).pop(),
           ),
           Expanded(child: MoveWindow()),
-          Container(
-            child: TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: BrandSpacing.md,
-                  vertical: BrandSpacing.md,
+          Consumer(
+            builder: (context, ref, child) => Container(
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: BrandSpacing.md,
+                    vertical: BrandSpacing.md,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BrandRadius.medium,
+                  ),
+                  iconColor: BrandColors.backgroundDark,
                 ),
-                shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
-                iconColor: BrandColors.backgroundDark,
-              ),
-              onPressed: () async {},
-              child: Text(
-                'Create Note',
-                style: BrandTextStyles.small.copyWith(
-                  color: BrandColors.textDark,
+                onPressed: () async {
+                  try {
+                    final newNote = await ref
+                        .read(noteControllerProvider)
+                        .create();
+                    if (newNote != null) {
+                      // CustomSnackBar.show(
+                      //   context,
+                      //   message: 'Failed to create note.',
+                      //   backgroundColor: BrandColors.warning,
+                      //   textStyle: BrandTextStyles.small,
+                      // );
+                    } else {
+                      CustomSnackBar.show(
+                        context,
+                        message: 'Failed to create note.',
+                        backgroundColor: BrandColors.warning,
+                        textStyle: BrandTextStyles.small,
+                      );
+                    }
+                  } catch (e) {
+                    CustomSnackBar.show(
+                      context,
+                      message: 'An error occurred: $e',
+                      backgroundColor: BrandColors.warning,
+                      textStyle: BrandTextStyles.small,
+                    );
+                  }
+                },
+                child: Text(
+                  'Create Note',
+                  style: BrandTextStyles.small.copyWith(
+                    color: BrandColors.textDark,
+                  ),
                 ),
               ),
             ),
