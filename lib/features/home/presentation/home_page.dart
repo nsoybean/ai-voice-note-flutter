@@ -1,6 +1,8 @@
 // Redesigned HomePage with AI Voice Note brand kit
 
 import 'package:ai_voice_note/features/auth/application/auth_controller.dart';
+import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
+import 'package:ai_voice_note/features/auth/shared/auth_storage.dart';
 import 'package:ai_voice_note/features/note/application/note_controller.dart';
 import 'package:ai_voice_note/features/shared/elements.dart';
 import 'package:ai_voice_note/theme/brand_radius.dart';
@@ -10,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -328,6 +331,37 @@ class CustomAppBar extends StatelessWidget {
               ),
             ),
           ),
+          Consumer(
+            builder: (context, ref, child) => Container(
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: BrandSpacing.md,
+                    vertical: BrandSpacing.md,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BrandRadius.medium,
+                  ),
+                  foregroundColor: Colors.red, // Red text for logout button
+                ),
+                onPressed: () async {
+                  // clear
+                  await AuthStorage().clearUser();
+
+                  // navigate to AuthHomePage
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const AuthHomePage(),
+                    ),
+                  ); // Navigate to AuthHomePage
+                },
+                child: const Text(
+                  'Log Out',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
 
           // ElevatedButton.icon(
           //   style: ElevatedButton.styleFrom(
@@ -365,72 +399,6 @@ class WindowButtons extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _VoiceNoteCard(int index) {
-  return SizedBox(
-    width: 280,
-    child: Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: const Color(0xFFE5E7EB)), // light gray
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Meeting with Product Team',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: BrandColors.textDark,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            '“Let’s prioritize onboarding fixes before the new release...”',
-            style: TextStyle(
-              fontSize: 14,
-              color: BrandColors.subtext,
-              height: 1.4,
-            ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Jun 5 · 12:32 PM',
-                style: TextStyle(fontSize: 12, color: BrandColors.subtext),
-              ),
-              Row(
-                children: const [
-                  Icon(Icons.play_arrow, size: 20, color: BrandColors.primary),
-                  SizedBox(width: 8),
-                  Icon(
-                    Icons.auto_awesome,
-                    size: 18,
-                    color: BrandColors.primary,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
 }
 
 Widget _buildDateSection(String label, List<int> noteIds) {

@@ -58,6 +58,10 @@ class AuthStorage {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('name');
     await prefs.remove('email');
+    await prefs.remove('picture');
+    await prefs.remove('id');
+    await prefs.remove('createdAt');
+    await prefs.remove('jwt');
   }
 
   Future<void> clearAll() async {
