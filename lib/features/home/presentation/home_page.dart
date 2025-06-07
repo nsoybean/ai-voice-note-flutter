@@ -2,7 +2,9 @@
 
 import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
 import 'package:ai_voice_note/features/auth/shared/auth_storage.dart';
+import 'package:ai_voice_note/features/note/domain/note.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
+import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
@@ -144,9 +146,7 @@ class _HomePageState extends State<HomePage> {
 
                                     return _buildDateSection(
                                       label,
-                                      entry.value
-                                          .map((note) => note.id)
-                                          .toList(),
+                                      entry.value,
                                     );
                                   }).toList(),
                                 );
@@ -367,7 +367,7 @@ class WindowButtons extends StatelessWidget {
   }
 }
 
-Widget _buildDateSection(String label, List<String> noteIds) {
+Widget _buildDateSection(String label, List<Note> notes) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -376,19 +376,19 @@ Widget _buildDateSection(String label, List<String> noteIds) {
         style: BrandTextStyles.small,
       ),
       const SizedBox(height: BrandSpacing.md),
-      ...noteIds.map((id) => _voiceNoteCard(id)).toList(),
+      ...notes.map((note) => _voiceNoteCard(note)).toList(),
       const SizedBox(height: BrandSpacing.lg),
     ],
   );
 }
 
-Widget _voiceNoteCard(String index) {
+Widget _voiceNoteCard(Note note) {
   return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
+    padding: const EdgeInsets.all(BrandSpacing.md),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BrandRadius.large,
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.03),
@@ -401,34 +401,33 @@ Widget _voiceNoteCard(String index) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Optional: Add a very subtle title
         Text(
-          'Team Sync #$index',
-          style: const TextStyle(
-            fontSize: 14,
+          note.title.isNotEmpty ? note.title : 'Untitled Note',
+          style: BrandTextStyles.small.copyWith(
             fontWeight: FontWeight.w500,
             color: BrandColors.textDark,
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
-          style: TextStyle(
-            fontSize: 13,
-            color: BrandColors.subtext,
-            height: 1.4,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
+        note.title.isNotEmpty
+            ? const Text(
+                '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
+                style: BrandTextStyles.small,
+              )
+            :
+              // blank
+              Text('No description available.', style: BrandTextStyles.small),
+        // Text(
+        //   DateFormat('yyyy-MM-dd HH:mm').format(note.createdAt),
+        //   style: BrandTextStyles.extraSmall,
+        //   maxLines: 2,
+        //   overflow: TextOverflow.ellipsis,
+        // ),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              '12:32 PM',
-              style: TextStyle(fontSize: 12, color: BrandColors.subtext),
-            ),
+            const Text('12:32 PM', style: BrandTextStyles.extraSmall),
             Row(
               children: const [
                 Icon(Icons.play_arrow, size: 18, color: BrandColors.primary),

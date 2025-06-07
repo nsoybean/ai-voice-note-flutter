@@ -38,6 +38,14 @@ class BrandTextStyles {
     fontFamily: 'Inter',
   );
 
+  /// Extra Small text (12px)
+  static const TextStyle extraSmall = TextStyle(
+    fontSize: 12,
+    height: 1.4,
+    color: BrandColors.subtext,
+    fontFamily: 'Inter',
+  );
+
   /// Light mode variants (override if needed)
   static TextStyle h1Light = h1.copyWith(color: BrandColors.textDark);
   static TextStyle h2Light = h2.copyWith(color: BrandColors.textDark);
