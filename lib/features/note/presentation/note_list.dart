@@ -17,12 +17,42 @@ class NoteList extends ConsumerStatefulWidget {
 }
 
 class _NoteListState extends ConsumerState<NoteList> {
+  late ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
+    // Initialize the ScrollController
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+
     // Trigger fetchNotesGroupedByDate in initState
     Future.microtask(
       () => ref.read(noteControllerProvider.notifier).fetchNotesGroupedByDate(),
+    );
+  }
+
+  @override
+  void dispose() {
+    // Dispose the ScrollController
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final noteState = ref.read(noteControllerProvider);
+    noteState.when(
+      data: (noteState) {
+        if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 50) {
+          if (!noteState.isLoadingMore && noteState.hasMoreData) {
+            ref.read(noteControllerProvider.notifier).fetchNextPage();
+          }
+        }
+      },
+      loading: () {},
+      error: (error, stack) {},
     );
   }
 
@@ -37,6 +67,7 @@ class _NoteListState extends ConsumerState<NoteList> {
           children: [
             Expanded(
               child: ListView(
+                controller: _scrollController, // Attach the ScrollController
                 padding: const EdgeInsets.symmetric(
                   vertical: BrandSpacing.md,
                   horizontal: BrandSpacing.xxl,
@@ -65,25 +96,30 @@ class _NoteListState extends ConsumerState<NoteList> {
                 }).toList(),
               ),
             ),
-            noteState.hasMoreData
+            noteState.isLoadingMore
                 ? Padding(
                     padding: const EdgeInsets.all(BrandSpacing.md),
-                    child: noteState.isLoadingMore
-                        ? const CircularProgressIndicator() // Show loading icon if isLoadingMore is true
-                        : ElevatedButton(
-                            onPressed: () {
-                              ref
-                                  .read(noteControllerProvider.notifier)
-                                  .fetchNextPage();
-                            },
-                            child: const Text('Load More'),
-                          ),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2, // Make the spinner thinner
+                      ),
+                    ),
                   )
                 : const SizedBox.shrink(),
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2, // Make the spinner thinner
+          ),
+        ),
+      ),
       error: (error, stack) => Center(child: Text('Error: $error')),
     );
   }
