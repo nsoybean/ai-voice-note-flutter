@@ -3,6 +3,7 @@
 import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
 import 'package:ai_voice_note/features/auth/shared/auth_storage.dart';
 import 'package:ai_voice_note/features/note/domain/note.dart';
+import 'package:ai_voice_note/features/note/presentation/note_editor_page.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
 import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:flutter/material.dart';
@@ -383,62 +384,85 @@ Widget _buildDateSection(String label, List<Note> notes) {
 }
 
 Widget _voiceNoteCard(Note note) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
-    padding: const EdgeInsets.all(BrandSpacing.md),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BrandRadius.large,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.03),
-          blurRadius: 6,
-          offset: const Offset(0, 1),
-        ),
-      ],
-      border: Border.all(color: const Color(0xFFE5E7EB)),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          note.title.isNotEmpty ? note.title : 'Untitled Note',
-          style: BrandTextStyles.small.copyWith(
-            fontWeight: FontWeight.w500,
-            color: BrandColors.textDark,
+  return Builder(
+    builder: (context) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NoteEditorPage(noteId: note.id),
+            ),
+          );
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
+          padding: const EdgeInsets.all(BrandSpacing.md),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BrandRadius.large,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 1),
+              ),
+            ],
+            border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 6),
-        note.title.isNotEmpty
-            ? const Text(
-                '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
-                style: BrandTextStyles.small,
-                maxLines: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                note.title.isNotEmpty ? note.title : 'Untitled Note',
+                style: BrandTextStyles.small.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: BrandColors.textDark,
+                ),
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              )
-            :
-              // blank
-              Text('No description available.', style: BrandTextStyles.small),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              DateFormat('hh:mm a').format(note.createdAt!),
-              style: BrandTextStyles.extraSmall,
-            ),
-            Row(
-              children: const [
-                Icon(Icons.play_arrow, size: 18, color: BrandColors.primary),
-                SizedBox(width: 6),
-                Icon(Icons.auto_awesome, size: 16, color: BrandColors.primary),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 6),
+              note.title.isNotEmpty
+                  ? const Text(
+                      '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
+                      style: BrandTextStyles.small,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : Text(
+                      'No description available.',
+                      style: BrandTextStyles.small,
+                    ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    DateFormat('hh:mm a').format(note.createdAt),
+                    style: BrandTextStyles.extraSmall,
+                  ),
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.play_arrow,
+                        size: 18,
+                        color: BrandColors.primary,
+                      ),
+                      SizedBox(width: 6),
+                      Icon(
+                        Icons.auto_awesome,
+                        size: 16,
+                        color: BrandColors.primary,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ],
-    ),
+      );
+    },
   );
 }
