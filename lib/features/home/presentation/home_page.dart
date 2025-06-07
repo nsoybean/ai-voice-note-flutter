@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                               data: (notesByDate) {
                                 return ListView(
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: BrandSpacing.sm,
+                                    vertical: BrandSpacing.md,
                                     horizontal: BrandSpacing.xxl,
                                   ),
                                   children: notesByDate.entries.map((entry) {
@@ -371,7 +371,10 @@ Widget _buildDateSection(String label, List<String> noteIds) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: BrandTextStyles.small), // label of grouped notes
+      Text(
+        label, // label of grouped notes
+        style: BrandTextStyles.small,
+      ),
       const SizedBox(height: BrandSpacing.md),
       ...noteIds.map((id) => _voiceNoteCard(id)).toList(),
       const SizedBox(height: BrandSpacing.lg),
