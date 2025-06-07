@@ -134,7 +134,7 @@ Widget _buildDateSection(String label, List<Note> notes, WidgetRef ref) {
         style: BrandTextStyles.small,
       ),
       const SizedBox(height: BrandSpacing.md),
-      ...notes.map((note) => _voiceNoteCard(note, ref)).toList(),
+      ...notes.map((note) => _voiceNoteCard(note, ref)),
       const SizedBox(height: BrandSpacing.lg),
     ],
   );

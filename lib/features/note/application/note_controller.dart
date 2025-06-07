@@ -62,7 +62,6 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
 
   Future<void> fetchNextPage() async {
     final currentState = state.value;
-    print('fetch next page...');
     if (currentState == null || !currentState.hasMoreData) return;
 
     try {

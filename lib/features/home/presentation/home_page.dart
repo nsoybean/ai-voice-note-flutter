@@ -43,7 +43,6 @@ class _HomePageState extends State<HomePage> with RouteAware {
   @override
   void didPopNext() {
     // Called when returning to this page
-    print('in home page');
     ref.read(noteControllerProvider.notifier).fetchNotesGroupedByDate();
   }
 
