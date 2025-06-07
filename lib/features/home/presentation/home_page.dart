@@ -407,27 +407,28 @@ Widget _voiceNoteCard(Note note) {
             fontWeight: FontWeight.w500,
             color: BrandColors.textDark,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 6),
         note.title.isNotEmpty
             ? const Text(
                 '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
                 style: BrandTextStyles.small,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               )
             :
               // blank
               Text('No description available.', style: BrandTextStyles.small),
-        // Text(
-        //   DateFormat('yyyy-MM-dd HH:mm').format(note.createdAt),
-        //   style: BrandTextStyles.extraSmall,
-        //   maxLines: 2,
-        //   overflow: TextOverflow.ellipsis,
-        // ),
         const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('12:32 PM', style: BrandTextStyles.extraSmall),
+            Text(
+              DateFormat('hh:mm a').format(note.createdAt!),
+              style: BrandTextStyles.extraSmall,
+            ),
             Row(
               children: const [
                 Icon(Icons.play_arrow, size: 18, color: BrandColors.primary),
