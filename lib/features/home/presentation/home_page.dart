@@ -383,15 +383,29 @@ Widget _buildDateSection(String label, List<Note> notes) {
   );
 }
 
-Widget _voiceNoteCard(Note note) {
-  return Builder(
-    builder: (context) {
-      return GestureDetector(
+class VoiceNoteCard extends StatefulWidget {
+  final Note note;
+
+  const VoiceNoteCard({Key? key, required this.note}) : super(key: key);
+
+  @override
+  State<VoiceNoteCard> createState() => _VoiceNoteCardState();
+}
+
+class _VoiceNoteCardState extends State<VoiceNoteCard> {
+  bool isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovering = true),
+      onExit: (_) => setState(() => isHovering = false),
+      child: GestureDetector(
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => NoteEditorPage(noteId: note.id),
+              builder: (context) => NoteEditorPage(noteId: widget.note.id),
             ),
           );
         },
@@ -399,7 +413,7 @@ Widget _voiceNoteCard(Note note) {
           margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
           padding: const EdgeInsets.all(BrandSpacing.md),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isHovering ? Colors.grey.shade100 : Colors.white,
             borderRadius: BrandRadius.large,
             boxShadow: [
               BoxShadow(
@@ -414,7 +428,9 @@ Widget _voiceNoteCard(Note note) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                note.title.isNotEmpty ? note.title : 'Untitled Note',
+                widget.note.title.isNotEmpty
+                    ? widget.note.title
+                    : 'Untitled Note',
                 style: BrandTextStyles.small.copyWith(
                   fontWeight: FontWeight.w500,
                   color: BrandColors.textDark,
@@ -423,7 +439,7 @@ Widget _voiceNoteCard(Note note) {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 6),
-              note.title.isNotEmpty
+              widget.note.title.isNotEmpty
                   ? const Text(
                       '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
                       style: BrandTextStyles.small,
@@ -439,7 +455,7 @@ Widget _voiceNoteCard(Note note) {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    DateFormat('hh:mm a').format(note.createdAt),
+                    DateFormat('hh:mm a').format(widget.note.createdAt),
                     style: BrandTextStyles.extraSmall,
                   ),
                   Row(
@@ -462,7 +478,12 @@ Widget _voiceNoteCard(Note note) {
             ],
           ),
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
+}
+
+// Replace the `_voiceNoteCard` function with the new `VoiceNoteCard` widget.
+Widget _voiceNoteCard(Note note) {
+  return VoiceNoteCard(note: note);
 }
