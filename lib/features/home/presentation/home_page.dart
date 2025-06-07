@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
               onToggleSidebar: () {
                 setState(() => isSidebarExpanded = !isSidebarExpanded);
               },
-              isAtHomePage: selectedIndex == 0 ? true : false,
+              isAtHomePage: true,
             ),
           ),
           Expanded(

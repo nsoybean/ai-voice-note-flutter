@@ -15,7 +15,7 @@ void main() async {
 
   doWhenWindowReady(() {
     const initialSize = Size(1020, 780);
-    appWindow.minSize = Size(500, 700);
+    appWindow.minSize = Size(500, 400);
     appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;
     appWindow.title = "AI Voice Note";
