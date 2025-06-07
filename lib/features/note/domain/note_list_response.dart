@@ -1,4 +1,4 @@
-import 'note_user.dart';
+import 'note.dart';
 
 class NoteListResponse {
   final List<Note> notes;

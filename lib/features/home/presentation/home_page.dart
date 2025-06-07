@@ -10,6 +10,7 @@ import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:ai_voice_note/features/note/presentation/create_note_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ai_voice_note/features/note/application/note_controller.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -118,12 +119,31 @@ class _HomePageState extends State<HomePage> {
                               data: (notesByDate) {
                                 return ListView(
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 32,
+                                    vertical: BrandSpacing.sm,
                                     horizontal: BrandSpacing.xxl,
                                   ),
                                   children: notesByDate.entries.map((entry) {
+                                    final dateKey = entry.key;
+                                    final date = DateTime.parse(dateKey);
+                                    final now = DateTime.now();
+
+                                    String label;
+                                    if (date.year == now.year &&
+                                        date.month == now.month &&
+                                        date.day == now.day) {
+                                      label = 'Today';
+                                    } else if (date.year == now.year &&
+                                        date.month == now.month &&
+                                        date.day == now.day - 1) {
+                                      label = 'Yesterday';
+                                    } else {
+                                      label = DateFormat(
+                                        'yyyy, MMM dd',
+                                      ).format(date);
+                                    }
+
                                     return _buildDateSection(
-                                      entry.key,
+                                      label,
                                       entry.value
                                           .map((note) => note.id)
                                           .toList(),
@@ -351,10 +371,10 @@ Widget _buildDateSection(String label, List<String> noteIds) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: BrandTextStyles.small),
-      const SizedBox(height: 12),
+      Text(label, style: BrandTextStyles.small), // label of grouped notes
+      const SizedBox(height: BrandSpacing.md),
       ...noteIds.map((id) => _voiceNoteCard(id)).toList(),
-      const SizedBox(height: 32),
+      const SizedBox(height: BrandSpacing.lg),
     ],
   );
 }

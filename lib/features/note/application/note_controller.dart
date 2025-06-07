@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../infrastructure/note_service.dart';
-import '../domain/note_user.dart';
+import '../domain/note.dart';
 
 final noteControllerProvider =
     StateNotifierProvider<NoteController, AsyncValue<Map<String, List<Note>>>>((
@@ -26,7 +26,7 @@ class NoteController
       final notes = await noteService.fetchNotes();
 
       // Group notes by date (e.g., "2025-06-07")
-      final groupedNotes = <String, List<Note>>{};
+      final groupedNotes = <String, List<Note>>{}; // date as key
       for (final note in notes.notes) {
         final dateKey = note.createdAt.toIso8601String().split('T').first;
         groupedNotes.putIfAbsent(dateKey, () => []).add(note);

@@ -1,7 +1,7 @@
 // ONote + HTTP logic
 import 'dart:convert';
 import 'package:ai_voice_note/core/http_client.dart';
-import 'package:ai_voice_note/features/note/domain/note_user.dart';
+import 'package:ai_voice_note/features/note/domain/note.dart';
 import 'package:ai_voice_note/features/note/domain/note_list_response.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -45,6 +45,7 @@ class NoteService {
 
     if (res.statusCode == 200) {
       final body = res.body.isNotEmpty ? jsonDecode(res.body) : {};
+      // {data: [], meta: {}}
       if (body is Map<String, dynamic>) {
         return NoteListResponse.fromJson(body);
       } else {
