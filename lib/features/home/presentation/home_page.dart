@@ -1,18 +1,17 @@
 // Redesigned HomePage with AI Voice Note brand kit
 
-import 'package:ai_voice_note/features/auth/application/auth_controller.dart';
 import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
 import 'package:ai_voice_note/features/auth/shared/auth_storage.dart';
-import 'package:ai_voice_note/features/note/application/note_controller.dart';
-import 'package:ai_voice_note/features/shared/elements.dart';
-import 'package:ai_voice_note/theme/brand_radius.dart';
-import 'package:ai_voice_note/theme/brand_spacing.dart';
-import 'package:ai_voice_note/theme/brand_text_styles.dart';
+import 'package:ai_voice_note/theme/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:ai_voice_note/theme/brand_colors.dart';
+import 'package:ai_voice_note/theme/brand_text_styles.dart';
+import 'package:ai_voice_note/theme/brand_spacing.dart';
+import 'package:ai_voice_note/features/note/application/note_controller.dart';
+import 'package:ai_voice_note/features/note/presentation/note_editor_page.dart';
+import 'package:ai_voice_note/features/shared/elements.dart';
+import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -33,11 +32,67 @@ class _HomePageState extends State<HomePage> {
         children: [
           SizedBox(
             height: 40,
-            child: CustomAppBar(
+            child: ReusableAppBar(
               onToggleSidebar: () {
                 setState(() => isSidebarExpanded = !isSidebarExpanded);
               },
-              isAtHomePage: true,
+              showToggle: true,
+              showBackIcon: false,
+              rightActions: [
+                Consumer(
+                  builder: (context, ref, child) => Container(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: BrandSpacing.md,
+                          vertical: BrandSpacing.md,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BrandRadius.medium,
+                        ),
+                        iconColor: BrandColors.backgroundDark,
+                      ),
+                      onPressed: () async {
+                        try {
+                          final newNote = await ref
+                              .read(noteControllerProvider)
+                              .create();
+
+                          if (newNote != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    NoteEditorPage(noteId: newNote.id),
+                              ),
+                            );
+                          } else {
+                            CustomSnackBar.show(
+                              context,
+                              message: 'Failed to create note.',
+                              backgroundColor: BrandColors.warning,
+                              textStyle: BrandTextStyles.small,
+                            );
+                          }
+                        } catch (e) {
+                          CustomSnackBar.show(
+                            context,
+                            message: 'An error occurred: $e',
+                            backgroundColor: BrandColors.warning,
+                            textStyle: BrandTextStyles.small,
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Create Note',
+                        style: BrandTextStyles.small.copyWith(
+                          color: BrandColors.textDark,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -267,14 +322,20 @@ class _HoverableProfileState extends State<_HoverableProfile> {
   }
 }
 
-class CustomAppBar extends StatelessWidget {
-  final VoidCallback onToggleSidebar;
-  final bool isAtHomePage;
+class ReusableAppBar extends StatelessWidget {
+  final VoidCallback? onToggleSidebar;
+  final bool showToggle;
+  final bool showBackIcon;
+  final VoidCallback? onBack;
+  final List<Widget>? rightActions;
 
-  const CustomAppBar({
+  const ReusableAppBar({
     super.key,
-    required this.onToggleSidebar,
-    required this.isAtHomePage,
+    this.onToggleSidebar,
+    this.showToggle = true,
+    this.showBackIcon = false,
+    this.onBack,
+    this.rightActions,
   });
 
   @override
@@ -283,69 +344,20 @@ class CustomAppBar extends StatelessWidget {
       child: Row(
         children: [
           const WindowButtons(),
-          IconButton(
-            icon: const Icon(Icons.menu),
-            tooltip: 'Toggle Sidebar',
-            onPressed: onToggleSidebar,
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_back, size: 18),
-            tooltip: 'Go Back',
-            onPressed: isAtHomePage ? null : () => Navigator.of(context).pop(),
-          ),
-          Expanded(child: MoveWindow()),
-          Consumer(
-            builder: (context, ref, child) => Container(
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: BrandSpacing.md,
-                    vertical: BrandSpacing.md,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BrandRadius.medium,
-                  ),
-                  iconColor: BrandColors.backgroundDark,
-                ),
-                onPressed: () async {
-                  try {
-                    final newNote = await ref
-                        .read(noteControllerProvider)
-                        .create();
-
-                    if (newNote != null) {
-                      CustomSnackBar.show(
-                        context,
-                        message: 'Created note successfully.',
-                        backgroundColor: BrandColors.success,
-                        textStyle: BrandTextStyles.small,
-                      );
-                    } else {
-                      CustomSnackBar.show(
-                        context,
-                        message: 'Failed to create note.',
-                        backgroundColor: BrandColors.warning,
-                        textStyle: BrandTextStyles.small,
-                      );
-                    }
-                  } catch (e) {
-                    CustomSnackBar.show(
-                      context,
-                      message: 'An error occurred: $e',
-                      backgroundColor: BrandColors.warning,
-                      textStyle: BrandTextStyles.small,
-                    );
-                  }
-                },
-                child: Text(
-                  'Create Note',
-                  style: BrandTextStyles.small.copyWith(
-                    color: BrandColors.textDark,
-                  ),
-                ),
-              ),
+          if (showToggle)
+            IconButton(
+              icon: const Icon(Icons.menu),
+              tooltip: 'Toggle Sidebar',
+              onPressed: onToggleSidebar,
             ),
-          ),
+          if (showBackIcon)
+            IconButton(
+              icon: const Icon(Icons.arrow_back, size: 18),
+              tooltip: 'Go Back',
+              onPressed: onBack ?? () => Navigator.of(context).pop(),
+            ),
+          Expanded(child: MoveWindow()),
+          if (rightActions != null) ...rightActions!,
         ],
       ),
     );
