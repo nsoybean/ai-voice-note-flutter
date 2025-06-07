@@ -8,6 +8,8 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:ai_voice_note/features/note/presentation/create_note_button.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ai_voice_note/features/note/application/note_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,111 +24,129 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: BrandColors.backgroundLight,
-      body: Column(
-        children: [
-          SizedBox(
-            height: 40,
-            child: ReusableAppBar(
-              onToggleSidebar: () {
-                setState(() => isSidebarExpanded = !isSidebarExpanded);
-              },
-              showToggle: true,
-              showBackIcon: false,
-              rightActions: const [CreateNoteButton()],
+    return ProviderScope(
+      child: Scaffold(
+        backgroundColor: BrandColors.backgroundLight,
+        body: Column(
+          children: [
+            SizedBox(
+              height: 40,
+              child: ReusableAppBar(
+                onToggleSidebar: () {
+                  setState(() => isSidebarExpanded = !isSidebarExpanded);
+                },
+                showToggle: true,
+                showBackIcon: false,
+                rightActions: const [CreateNoteButton()],
+              ),
             ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeInOut,
-                  width: isSidebarExpanded ? 200 : 0,
-                  child: isSidebarExpanded
-                      ? Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border(
-                              right: BorderSide(
-                                color: Colors.grey.shade200,
-                                width: 1,
+            Expanded(
+              child: Row(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    width: isSidebarExpanded ? 200 : 0,
+                    child: isSidebarExpanded
+                        ? Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border(
+                                right: BorderSide(
+                                  color: Colors.grey.shade200,
+                                  width: 1,
+                                ),
                               ),
                             ),
-                          ),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: Visibility(
-                                  visible: isSidebarExpanded,
-                                  child: NavigationRail(
-                                    extended:
-                                        isSidebarExpanded, // Ensure it collapses when the sidebar is collapsed
-                                    selectedIndex: selectedIndex,
-                                    useIndicator: true,
-                                    indicatorColor: BrandColors.primary,
-                                    selectedIconTheme: const IconThemeData(
-                                      color: BrandColors.backgroundLight,
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Visibility(
+                                    visible: isSidebarExpanded,
+                                    child: NavigationRail(
+                                      extended:
+                                          isSidebarExpanded, // Ensure it collapses when the sidebar is collapsed
+                                      selectedIndex: selectedIndex,
+                                      useIndicator: true,
+                                      indicatorColor: BrandColors.primary,
+                                      selectedIconTheme: const IconThemeData(
+                                        color: BrandColors.backgroundLight,
+                                      ),
+                                      onDestinationSelected: (index) {
+                                        setState(() => selectedIndex = index);
+                                      },
+                                      destinations: const [
+                                        NavigationRailDestination(
+                                          icon: Icon(Icons.home),
+                                          label: Text('Home'),
+                                        ),
+                                        NavigationRailDestination(
+                                          icon: Icon(Icons.folder),
+                                          label: Text('Folders'),
+                                        ),
+                                      ],
                                     ),
-                                    onDestinationSelected: (index) {
-                                      setState(() => selectedIndex = index);
-                                    },
-                                    destinations: const [
-                                      NavigationRailDestination(
-                                        icon: Icon(Icons.home),
-                                        label: Text('Home'),
-                                      ),
-                                      NavigationRailDestination(
-                                        icon: Icon(Icons.folder),
-                                        label: Text('Folders'),
-                                      ),
-                                    ],
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: AnimatedSize(
-                                  duration: const Duration(milliseconds: 250),
-                                  curve: Curves.easeInOut,
-                                  child: _HoverableProfile(
-                                    isExpanded: isSidebarExpanded,
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: AnimatedSize(
+                                    duration: const Duration(milliseconds: 250),
+                                    curve: Curves.easeInOut,
+                                    child: _HoverableProfile(
+                                      isExpanded: isSidebarExpanded,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : null,
-                ),
-                // Main Content
-                Expanded(
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: BrandSpacing.xs,
-                      ),
-                      // padding: const EdgeInsets.symmetric(horizontal: 24),
-                      // constraints: const BoxConstraints(maxWidth: 720),
-                      child: ListView(
+                              ],
+                            ),
+                          )
+                        : null,
+                  ),
+                  // Main Content
+                  Expanded(
+                    child: Center(
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
-                          vertical: 32,
-                          horizontal: BrandSpacing.xxl,
+                          horizontal: BrandSpacing.xs,
                         ),
-                        children: [
-                          _buildDateSection("Today", [1, 2]),
-                          _buildDateSection("Yesterday", [3]),
-                          _buildDateSection("June 4, 2025", [4, 5]),
-                        ],
+                        child: Consumer(
+                          builder: (context, ref, child) {
+                            final asyncNotes = ref.watch(listNoteProvider);
+
+                            return asyncNotes.when(
+                              data: (notesByDate) {
+                                return ListView(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 32,
+                                    horizontal: BrandSpacing.xxl,
+                                  ),
+                                  children: notesByDate.entries.map((entry) {
+                                    return _buildDateSection(
+                                      entry.key,
+                                      entry.value
+                                          .map((note) => note.id)
+                                          .toList(),
+                                    );
+                                  }).toList(),
+                                );
+                              },
+                              loading: () => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              error: (error, stack) =>
+                                  Center(child: Text('Error: $error')),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -327,19 +347,11 @@ class WindowButtons extends StatelessWidget {
   }
 }
 
-Widget _buildDateSection(String label, List<int> noteIds) {
+Widget _buildDateSection(String label, List<String> noteIds) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
-        label,
-        style: BrandTextStyles.small,
-        // const TextStyle(
-        //   fontSize: ,
-        //   fontWeight: FontWeight.w500,
-        //   color: BrandColors.subtext,
-        // ),
-      ),
+      Text(label, style: BrandTextStyles.small),
       const SizedBox(height: 12),
       ...noteIds.map((id) => _voiceNoteCard(id)).toList(),
       const SizedBox(height: 32),
@@ -347,7 +359,7 @@ Widget _buildDateSection(String label, List<int> noteIds) {
   );
 }
 
-Widget _voiceNoteCard(int index) {
+Widget _voiceNoteCard(String index) {
   return Container(
     margin: const EdgeInsets.only(bottom: 12),
     padding: const EdgeInsets.all(16),

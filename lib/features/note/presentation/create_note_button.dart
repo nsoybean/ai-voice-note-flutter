@@ -24,7 +24,9 @@ class CreateNoteButton extends ConsumerWidget {
       ),
       onPressed: () async {
         try {
-          final newNote = await ref.read(noteControllerProvider).create();
+          final newNote = await ref
+              .read(noteControllerProvider.notifier)
+              .create();
 
           if (newNote != null) {
             Navigator.push(
