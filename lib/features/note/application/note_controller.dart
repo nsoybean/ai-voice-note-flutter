@@ -42,7 +42,12 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
 
       final groupedNotes = <String, List<Note>>{};
       for (final note in notes.notes) {
-        final dateKey = note.createdAt.toIso8601String().split('T').first;
+        // Convert createdAt to local time before extracting the date key
+        final dateKey = note.createdAt
+            .toLocal() // important !
+            .toIso8601String()
+            .split('T')
+            .first;
         groupedNotes.putIfAbsent(dateKey, () => []).add(note);
       }
 
@@ -88,7 +93,11 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
 
       final updatedNotes = {...currentState.notes};
       for (final note in notes.notes) {
-        final dateKey = note.createdAt.toIso8601String().split('T').first;
+        final dateKey = note.createdAt
+            .toLocal()
+            .toIso8601String()
+            .split('T')
+            .first;
         updatedNotes.putIfAbsent(dateKey, () => []).add(note);
       }
 

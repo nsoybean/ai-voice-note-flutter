@@ -43,7 +43,9 @@ class _NoteListState extends ConsumerState<NoteList> {
                 ),
                 children: notes.entries.map((entry) {
                   final dateKey = entry.key;
+                  // Convert dateKey to local time
                   final date = DateTime.parse(dateKey);
+                  // Ensure now is in local time
                   final now = DateTime.now();
 
                   String label;
@@ -181,7 +183,10 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    DateFormat('hh:mm a').format(widget.note.createdAt),
+                    // Update the createdAt field to convert it to local time
+                    DateFormat(
+                      'hh:mm a',
+                    ).format(widget.note.createdAt.toLocal()),
                     style: BrandTextStyles.extraSmall,
                   ),
                   Row(
