@@ -36,9 +36,11 @@ class VoiceNoteApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
       title: 'AI Voice Note',
       theme: lightTheme,
+
       home: Consumer(
         builder: (context, ref, _) {
           final userAsync = ref.watch(currentUserProvider);

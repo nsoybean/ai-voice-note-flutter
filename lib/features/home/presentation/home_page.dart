@@ -1,18 +1,18 @@
 // Redesigned HomePage with AI Voice Note brand kit
 import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
 import 'package:ai_voice_note/features/auth/shared/auth_storage.dart';
-import 'package:ai_voice_note/features/note/domain/note.dart';
-import 'package:ai_voice_note/features/note/presentation/note_editor_page.dart';
 import 'package:ai_voice_note/features/note/presentation/note_list.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
-import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:ai_voice_note/features/note/presentation/create_note_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:ai_voice_note/features/note/application/note_controller.dart';
+
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,121 +21,135 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with RouteAware {
+  late WidgetRef ref;
   bool isSidebarExpanded = true;
   int selectedIndex = 0;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to RouteObserver
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    // Unsubscribe from RouteObserver
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when returning to this page
+    print('in home page');
+    ref.read(noteControllerProvider.notifier).fetchNotesGroupedByDate();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ProviderScope(
-      child: Consumer(
-        builder: (context, ref, child) {
-          ref = ref; // Assign ref to a class-level variable
-          return Scaffold(
-            backgroundColor: BrandColors.backgroundLight,
-            body: Column(
-              children: [
-                SizedBox(
-                  height: 40,
-                  child: ReusableAppBar(
-                    onToggleSidebar: () {
-                      setState(() => isSidebarExpanded = !isSidebarExpanded);
-                    },
-                    showToggle: true,
-                    showBackIcon: false,
-                    rightActions: const [CreateNoteButton()],
-                  ),
+    return Consumer(
+      builder: (context, ref, child) {
+        this.ref = ref; // Assign ref to a class-level variable
+        return Scaffold(
+          backgroundColor: BrandColors.backgroundLight,
+          body: Column(
+            children: [
+              SizedBox(
+                height: 40,
+                child: ReusableAppBar(
+                  onToggleSidebar: () {
+                    setState(() => isSidebarExpanded = !isSidebarExpanded);
+                  },
+                  showToggle: true,
+                  showBackIcon: false,
+                  rightActions: const [CreateNoteButton()],
                 ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOut,
-                        width: isSidebarExpanded ? 200 : 0,
-                        child: isSidebarExpanded
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border(
-                                    right: BorderSide(
-                                      color: Colors.grey.shade200,
-                                      width: 1,
-                                    ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                      width: isSidebarExpanded ? 200 : 0,
+                      child: isSidebarExpanded
+                          ? Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border(
+                                  right: BorderSide(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
                                   ),
                                 ),
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: Visibility(
-                                        visible: isSidebarExpanded,
-                                        child: NavigationRail(
-                                          extended:
-                                              isSidebarExpanded, // Ensure it collapses when the sidebar is collapsed
-                                          selectedIndex: selectedIndex,
-                                          useIndicator: true,
-                                          indicatorColor: BrandColors.primary,
-                                          selectedIconTheme:
-                                              const IconThemeData(
-                                                color:
-                                                    BrandColors.backgroundLight,
-                                              ),
-                                          onDestinationSelected: (index) {
-                                            setState(
-                                              () => selectedIndex = index,
-                                            );
-                                          },
-                                          destinations: const [
-                                            NavigationRailDestination(
-                                              icon: Icon(Icons.home),
-                                              label: Text('Home'),
-                                            ),
-                                            NavigationRailDestination(
-                                              icon: Icon(Icons.folder),
-                                              label: Text('Folders'),
-                                            ),
-                                          ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: Visibility(
+                                      visible: isSidebarExpanded,
+                                      child: NavigationRail(
+                                        extended:
+                                            isSidebarExpanded, // Ensure it collapses when the sidebar is collapsed
+                                        selectedIndex: selectedIndex,
+                                        useIndicator: true,
+                                        indicatorColor: BrandColors.primary,
+                                        selectedIconTheme: const IconThemeData(
+                                          color: BrandColors.backgroundLight,
                                         ),
+                                        onDestinationSelected: (index) {
+                                          setState(() => selectedIndex = index);
+                                        },
+                                        destinations: const [
+                                          NavigationRailDestination(
+                                            icon: Icon(Icons.home),
+                                            label: Text('Home'),
+                                          ),
+                                          NavigationRailDestination(
+                                            icon: Icon(Icons.folder),
+                                            label: Text('Folders'),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 16,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: AnimatedSize(
+                                      duration: const Duration(
+                                        milliseconds: 250,
                                       ),
-                                      child: AnimatedSize(
-                                        duration: const Duration(
-                                          milliseconds: 250,
-                                        ),
-                                        curve: Curves.easeInOut,
-                                        child: _HoverableProfile(
-                                          isExpanded: isSidebarExpanded,
-                                        ),
+                                      curve: Curves.easeInOut,
+                                      child: _HoverableProfile(
+                                        isExpanded: isSidebarExpanded,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              )
-                            : null,
-                      ),
-                      // Main Content
-                      Expanded(
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: BrandSpacing.xs,
-                            ),
-                            child: const NoteList(),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : null,
+                    ),
+                    // Main Content
+                    Expanded(
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: BrandSpacing.xs,
                           ),
+                          child: const NoteList(),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
