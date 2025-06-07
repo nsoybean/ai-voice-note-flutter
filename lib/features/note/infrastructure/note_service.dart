@@ -37,9 +37,9 @@ class NoteService {
     }
   }
 
-  Future<NoteListResponse> fetchNotes() async {
+  Future<NoteListResponse> fetchNotes({int page = 1, int limit = 10}) async {
     final res = await httpClient.get(
-      Uri.parse('http://127.0.0.1:3000/note/list'),
+      Uri.parse('http://127.0.0.1:3000/note/list?page=$page&limit=$limit'),
       headers: {'Accept': 'application/json'},
     );
 
