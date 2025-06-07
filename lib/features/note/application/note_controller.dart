@@ -5,14 +5,20 @@ import '../domain/note.dart';
 class NoteState {
   final Map<String, List<Note>> notes;
   final bool hasMoreData;
+  final bool
+  isLoadingMore; // New property to track loading state for 'Load More'
 
-  NoteState({required this.notes, required this.hasMoreData});
+  NoteState({
+    required this.notes,
+    required this.hasMoreData,
+    this.isLoadingMore = false, // Default to false
+  });
 }
 
 final noteControllerProvider =
     StateNotifierProvider<NoteController, AsyncValue<NoteState>>((ref) {
-  return NoteController(noteService: ref.read(noteServiceProvider));
-});
+      return NoteController(noteService: ref.read(noteServiceProvider));
+    });
 
 class NoteController extends StateNotifier<AsyncValue<NoteState>> {
   final NoteService noteService;
@@ -20,7 +26,7 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
   final int _pageLimit = 10;
 
   NoteController({required this.noteService})
-      : super(const AsyncValue.loading());
+    : super(const AsyncValue.loading());
 
   Future<Note?> create() async {
     return await noteService.create();
@@ -41,7 +47,9 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
       }
 
       final hasMoreData = notes.meta.page < notes.meta.totalPages;
-      state = AsyncValue.data(NoteState(notes: groupedNotes, hasMoreData: hasMoreData));
+      state = AsyncValue.data(
+        NoteState(notes: groupedNotes, hasMoreData: hasMoreData),
+      );
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
     }
@@ -52,6 +60,15 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
     if (currentState == null || !currentState.hasMoreData) return;
 
     try {
+      // Set isLoadingMore to true
+      state = AsyncValue.data(
+        NoteState(
+          notes: currentState.notes,
+          hasMoreData: currentState.hasMoreData,
+          isLoadingMore: true,
+        ),
+      );
+
       _currentPage++;
       final notes = await noteService.fetchNotes(
         page: _currentPage,
@@ -59,10 +76,13 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
       );
 
       if (notes.notes.isEmpty) {
-        state = AsyncValue.data(NoteState(
-          notes: currentState.notes,
-          hasMoreData: false,
-        ));
+        state = AsyncValue.data(
+          NoteState(
+            notes: currentState.notes,
+            hasMoreData: false,
+            isLoadingMore: false, // Reset isLoadingMore
+          ),
+        );
         return;
       }
 
@@ -73,7 +93,13 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
       }
 
       final hasMoreData = notes.meta.page < notes.meta.totalPages;
-      state = AsyncValue.data(NoteState(notes: updatedNotes, hasMoreData: hasMoreData));
+      state = AsyncValue.data(
+        NoteState(
+          notes: updatedNotes,
+          hasMoreData: hasMoreData,
+          isLoadingMore: false, // Reset isLoadingMore
+        ),
+      );
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
     }

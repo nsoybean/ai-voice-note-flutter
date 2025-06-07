@@ -66,14 +66,16 @@ class _NoteListState extends ConsumerState<NoteList> {
             noteState.hasMoreData
                 ? Padding(
                     padding: const EdgeInsets.all(BrandSpacing.md),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ref
-                            .read(noteControllerProvider.notifier)
-                            .fetchNextPage();
-                      },
-                      child: const Text('Load More'),
-                    ),
+                    child: noteState.isLoadingMore
+                        ? const CircularProgressIndicator() // Show loading icon if isLoadingMore is true
+                        : ElevatedButton(
+                            onPressed: () {
+                              ref
+                                  .read(noteControllerProvider.notifier)
+                                  .fetchNextPage();
+                            },
+                            child: const Text('Load More'),
+                          ),
                   )
                 : const SizedBox.shrink(),
           ],
