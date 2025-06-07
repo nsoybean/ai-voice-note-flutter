@@ -158,93 +158,237 @@ class VoiceNoteCard extends StatefulWidget {
 
 class _VoiceNoteCardState extends State<VoiceNoteCard> {
   bool isHovering = false;
+  bool showMenu = false;
 
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => isHovering = true),
-      onExit: (_) => setState(() => isHovering = false),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => NoteEditorPage(noteId: widget.note.id),
-            ),
-          );
-        },
-        child: Container(
-          margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
-          padding: const EdgeInsets.all(BrandSpacing.md),
-          decoration: BoxDecoration(
-            color: isHovering ? Colors.grey.shade100 : Colors.white,
-            borderRadius: BrandRadius.large,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 6,
-                offset: const Offset(0, 1),
-              ),
-            ],
-            border: Border.all(color: const Color(0xFFE5E7EB)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.note.title.isNotEmpty
-                    ? widget.note.title
-                    : 'Untitled Note',
-                style: BrandTextStyles.small.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: BrandColors.textDark,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 6),
-              widget.note.title.isNotEmpty
-                  ? const Text(
-                      '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
-                      style: BrandTextStyles.small,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  : Text(
-                      'No description available.',
-                      style: BrandTextStyles.small,
-                    ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.2), // subtle overlay
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
+          backgroundColor: BrandColors.backgroundLight,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 400,
+            ), // Limit dialog width
+            child: Padding(
+              padding: const EdgeInsets.all(BrandSpacing.md),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text('Delete Note', style: BrandTextStyles.body),
+                  const SizedBox(height: BrandSpacing.sm),
                   Text(
-                    // Update the createdAt field to convert it to local time
-                    DateFormat(
-                      'hh:mm a',
-                    ).format(widget.note.createdAt.toLocal()),
-                    style: BrandTextStyles.extraSmall,
+                    'Are you sure you want to delete this note?',
+                    style: BrandTextStyles.body.copyWith(
+                      color: BrandColors.subtext,
+                    ),
                   ),
+                  const SizedBox(height: BrandSpacing.lg),
                   Row(
-                    children: const [
-                      Icon(
-                        Icons.play_arrow,
-                        size: 18,
-                        color: BrandColors.primary,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: BrandSpacing.md,
+                          ),
+                          foregroundColor: BrandColors.subtext,
+                          textStyle: BrandTextStyles.body,
+                          alignment: Alignment.center,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
                       ),
-                      SizedBox(width: 6),
-                      Icon(
-                        Icons.auto_awesome,
-                        size: 16,
-                        color: BrandColors.primary,
+                      const SizedBox(width: BrandSpacing.sm),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: BrandColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BrandRadius.medium,
+                          ),
+                          minimumSize: const Size(
+                            96,
+                            BrandSpacing.buttonHeight,
+                          ),
+                          textStyle: BrandTextStyles.body.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onPressed: () {
+                          // Add delete logic here
+                          setState(() {
+                            showMenu = false;
+                          });
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Delete'),
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => isHovering = true),
+      onExit: (_) => setState(() {
+        isHovering = false;
+        showMenu = false;
+      }),
+      child: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NoteEditorPage(noteId: widget.note.id),
+                ),
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
+              padding: const EdgeInsets.all(BrandSpacing.md),
+              decoration: BoxDecoration(
+                color: isHovering ? Colors.grey.shade100 : Colors.white,
+                borderRadius: BrandRadius.large,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.note.title.isNotEmpty
+                        ? widget.note.title
+                        : 'Untitled Note',
+                    style: BrandTextStyles.small.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: BrandColors.textDark,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  widget.note.title.isNotEmpty
+                      ? const Text(
+                          '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
+                          style: BrandTextStyles.small,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : Text(
+                          'No description available.',
+                          style: BrandTextStyles.small,
+                        ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        DateFormat(
+                          'hh:mm a',
+                        ).format(widget.note.createdAt.toLocal()),
+                        style: BrandTextStyles.extraSmall,
+                      ),
+                      Row(
+                        children: const [
+                          Icon(
+                            Icons.play_arrow,
+                            size: 18,
+                            color: BrandColors.primary,
+                          ),
+                          SizedBox(width: 6),
+                          Icon(
+                            Icons.auto_awesome,
+                            size: 16,
+                            color: BrandColors.primary,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (isHovering)
+            Positioned(
+              top: BrandSpacing.sm,
+              right: BrandSpacing.sm,
+              child: GestureDetector(
+                onTap: () => setState(() => showMenu = !showMenu),
+                child: const Icon(
+                  Icons.more_vert,
+                  size: 20,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          if (showMenu)
+            Positioned(
+              top: 30,
+              right: 8,
+              child: Material(
+                elevation: 2,
+                borderRadius: BrandRadius.medium,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BrandRadius.medium,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() => showMenu = false);
+                          _showDeleteConfirmationDialog(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(Icons.delete, size: 16, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text(
+                                'Delete',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
