@@ -116,28 +116,31 @@ class _HomePageState extends State<HomePage> {
                           child: Column(
                             children: [
                               Expanded(
-                                child: NavigationRail(
-                                  extended:
-                                      isSidebarExpanded, // Ensure it collapses when the sidebar is collapsed
-                                  selectedIndex: selectedIndex,
-                                  useIndicator: true,
-                                  indicatorColor: BrandColors.primary,
-                                  selectedIconTheme: const IconThemeData(
-                                    color: BrandColors.backgroundLight,
+                                child: Visibility(
+                                  visible: isSidebarExpanded,
+                                  child: NavigationRail(
+                                    extended:
+                                        isSidebarExpanded, // Ensure it collapses when the sidebar is collapsed
+                                    selectedIndex: selectedIndex,
+                                    useIndicator: true,
+                                    indicatorColor: BrandColors.primary,
+                                    selectedIconTheme: const IconThemeData(
+                                      color: BrandColors.backgroundLight,
+                                    ),
+                                    onDestinationSelected: (index) {
+                                      setState(() => selectedIndex = index);
+                                    },
+                                    destinations: const [
+                                      NavigationRailDestination(
+                                        icon: Icon(Icons.home),
+                                        label: Text('Home'),
+                                      ),
+                                      NavigationRailDestination(
+                                        icon: Icon(Icons.folder),
+                                        label: Text('Folders'),
+                                      ),
+                                    ],
                                   ),
-                                  onDestinationSelected: (index) {
-                                    setState(() => selectedIndex = index);
-                                  },
-                                  destinations: const [
-                                    NavigationRailDestination(
-                                      icon: Icon(Icons.home),
-                                      label: Text('Home'),
-                                    ),
-                                    NavigationRailDestination(
-                                      icon: Icon(Icons.folder),
-                                      label: Text('Folders'),
-                                    ),
-                                  ],
                                 ),
                               ),
                               Padding(
