@@ -24,7 +24,9 @@ void main() async {
 }
 
 final currentUserProvider = FutureProvider.autoDispose((ref) async {
-  final authController = ref.read(authControllerProvider);
+  final authController = ref.read(
+    authControllerProvider,
+  ); // read without listening to provider
   return await authController.getCurrentUser();
 });
 
