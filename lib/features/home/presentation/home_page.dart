@@ -148,6 +148,7 @@ class _HomePageState extends State<HomePage> {
                                     return _buildDateSection(
                                       label,
                                       entry.value,
+                                      ref,
                                     );
                                   }).toList(),
                                 );
@@ -368,7 +369,7 @@ class WindowButtons extends StatelessWidget {
   }
 }
 
-Widget _buildDateSection(String label, List<Note> notes) {
+Widget _buildDateSection(String label, List<Note> notes, WidgetRef ref) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -377,7 +378,7 @@ Widget _buildDateSection(String label, List<Note> notes) {
         style: BrandTextStyles.small,
       ),
       const SizedBox(height: BrandSpacing.md),
-      ...notes.map((note) => _voiceNoteCard(note)).toList(),
+      ...notes.map((note) => _voiceNoteCard(note, ref)).toList(),
       const SizedBox(height: BrandSpacing.lg),
     ],
   );
@@ -385,8 +386,10 @@ Widget _buildDateSection(String label, List<Note> notes) {
 
 class VoiceNoteCard extends StatefulWidget {
   final Note note;
+  final WidgetRef ref; // Add ref to the constructor
 
-  const VoiceNoteCard({Key? key, required this.note}) : super(key: key);
+  const VoiceNoteCard({Key? key, required this.note, required this.ref})
+    : super(key: key);
 
   @override
   State<VoiceNoteCard> createState() => _VoiceNoteCardState();
@@ -484,6 +487,6 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
 }
 
 // Replace the `_voiceNoteCard` function with the new `VoiceNoteCard` widget.
-Widget _voiceNoteCard(Note note) {
-  return VoiceNoteCard(note: note);
+Widget _voiceNoteCard(Note note, WidgetRef ref) {
+  return VoiceNoteCard(note: note, ref: ref);
 }

@@ -29,7 +29,7 @@ class CreateNoteButton extends ConsumerWidget {
               .create();
 
           if (newNote != null) {
-            Navigator.push(
+            final created = Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => NoteEditorPage(noteId: newNote.id),
