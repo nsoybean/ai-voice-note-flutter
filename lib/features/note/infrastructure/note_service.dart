@@ -24,8 +24,15 @@ class NoteService {
       },
     );
 
-    final newNote = jsonDecode(res.body);
-
-    return Note.fromApiResponse(newNote);
+    if (res.statusCode == 201) {
+      final body = res.body.isNotEmpty ? jsonDecode(res.body) : null;
+      if (body != null && body is Map<String, dynamic>) {
+        return Note.fromApiResponse(body);
+      } else {
+        throw Exception('Invalid response format');
+      }
+    } else {
+      throw Exception('Failed to create note: ${res.statusCode}');
+    }
   }
 }

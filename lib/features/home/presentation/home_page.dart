@@ -102,25 +102,23 @@ class _HomePageState extends State<HomePage> {
                 ),
                 // Main Content
                 Expanded(
-                  child: Expanded(
-                    child: Center(
-                      child: Container(
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: BrandSpacing.xs,
+                      ),
+                      // padding: const EdgeInsets.symmetric(horizontal: 24),
+                      // constraints: const BoxConstraints(maxWidth: 720),
+                      child: ListView(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: BrandSpacing.xs,
+                          vertical: 32,
+                          horizontal: BrandSpacing.xxl,
                         ),
-                        // padding: const EdgeInsets.symmetric(horizontal: 24),
-                        // constraints: const BoxConstraints(maxWidth: 720),
-                        child: ListView(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 32,
-                            horizontal: BrandSpacing.xxl,
-                          ),
-                          children: [
-                            _buildDateSection("Today", [1, 2]),
-                            _buildDateSection("Yesterday", [3]),
-                            _buildDateSection("June 4, 2025", [4, 5]),
-                          ],
-                        ),
+                        children: [
+                          _buildDateSection("Today", [1, 2]),
+                          _buildDateSection("Yesterday", [3]),
+                          _buildDateSection("June 4, 2025", [4, 5]),
+                        ],
                       ),
                     ),
                   ),
@@ -314,13 +312,14 @@ class CustomAppBar extends StatelessWidget {
                     final newNote = await ref
                         .read(noteControllerProvider)
                         .create();
+
                     if (newNote != null) {
-                      // CustomSnackBar.show(
-                      //   context,
-                      //   message: 'Failed to create note.',
-                      //   backgroundColor: BrandColors.warning,
-                      //   textStyle: BrandTextStyles.small,
-                      // );
+                      CustomSnackBar.show(
+                        context,
+                        message: 'Created note successfully.',
+                        backgroundColor: BrandColors.success,
+                        textStyle: BrandTextStyles.small,
+                      );
                     } else {
                       CustomSnackBar.show(
                         context,
