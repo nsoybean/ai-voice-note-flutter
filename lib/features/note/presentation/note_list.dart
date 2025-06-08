@@ -71,9 +71,11 @@ class _NoteListState extends ConsumerState<NoteList> {
             Expanded(
               child: ListView(
                 controller: _scrollController, // Attach the ScrollController
-                padding: const EdgeInsets.symmetric(
-                  vertical: BrandSpacing.md,
-                  horizontal: BrandSpacing.xxl,
+                padding: const EdgeInsets.only(
+                  top: BrandSpacing.md,
+                  left: BrandSpacing.xxl,
+                  right: BrandSpacing.xxl,
+                  bottom: BrandSpacing.xxl, // Add extra bottom padding
                 ),
                 children: notes.entries.map((entry) {
                   final dateKey = entry.key;
