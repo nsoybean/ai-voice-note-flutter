@@ -1,3 +1,4 @@
+import 'package:ai_voice_note/features/note/application/single_note_controller.dart';
 import 'package:ai_voice_note/features/note/domain/note.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -264,6 +265,29 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                             //     ),
                             //   ],
                             // ),
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                try {
+                                  await widget.ref
+                                      .read(
+                                        singleNoteControllerProvider.notifier,
+                                      )
+                                      .deleteNoteById(widget.note.id);
+                                  widget.ref
+                                      .read(noteControllerProvider.notifier)
+                                      .fetchNotesGroupedByDate();
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Failed to delete note: $e',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           ],
                         ),
                       ],

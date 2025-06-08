@@ -47,4 +47,14 @@ class SingleNoteController extends StateNotifier<SingleNoteState> {
       state = state.copyWith(error: e.toString());
     }
   }
+
+  Future<void> deleteNoteById(String noteId) async {
+    // state = state.copyWith(isLoading: true);
+    try {
+      await noteService.deleteNoteById(noteId);
+      // state = state.copyWith(note: null, isLoading: false);
+    } catch (e) {
+      // state = state.copyWith(error: e.toString(), isLoading: false);
+    }
+  }
 }

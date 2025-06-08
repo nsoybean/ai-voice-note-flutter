@@ -76,5 +76,19 @@ class HttpClientWrapper {
     );
   }
 
+  Future<http.Response> delete(Uri url, {Map<String, String>? headers}) async {
+    final userData = await AuthStorage().getUser();
+    if (userData?.jwt == null) {
+      throw Exception('User JWT token is null');
+    }
+
+    final updatedHeaders = {
+      ...?headers,
+      'Authorization': 'Bearer ${userData?.jwt}',
+    };
+
+    return _client.delete(url, headers: updatedHeaders);
+  }
+
   // Add other HTTP methods (delete, etc.) as needed
 }

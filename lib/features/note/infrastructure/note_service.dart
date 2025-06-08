@@ -88,4 +88,15 @@ class NoteService {
       throw Exception('Failed to fetch note: ${res.statusCode}');
     }
   }
+
+  Future<void> deleteNoteById(String noteId) async {
+    final res = await httpClient.delete(
+      Uri.parse('http://127.0.0.1:3000/note/$noteId/delete'),
+      headers: {'Accept': 'application/json'},
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception('Failed to delete note: ${res.statusCode}');
+    }
+  }
 }
