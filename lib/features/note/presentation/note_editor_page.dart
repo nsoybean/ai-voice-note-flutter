@@ -29,6 +29,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   final FocusNode _focusNode = FocusNode();
   final GlobalKey<EditorState> _editorKey = GlobalKey();
   FleatherController? _controller;
+  bool _isDocumentEmpty = true; // Variable to track if the document is empty
 
   @override
   void initState() {
@@ -37,6 +38,14 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     // Initialize the title controller
     _titleController = TextEditingController();
     _initFleatherController();
+
+    // Listen to document changes
+    _controller?.document.changes.listen((event) {
+      final updatedText = _controller?.document.toPlainText();
+      _isDocumentEmpty = updatedText?.trim().isEmpty ?? true;
+      print('Updated document content: $updatedText');
+      setState(() {}); // Trigger UI update
+    });
 
     // Trigger the load when page opens
     Future.microtask(() async {
@@ -194,12 +203,33 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           Expanded(
             child: _controller == null
                 ? const Center(child: CircularProgressIndicator())
-                : FleatherEditor(
-                    controller: _controller!,
-                    focusNode: _focusNode,
-                    editorKey: _editorKey,
-                    maxContentWidth: 1000,
-                    padding: const EdgeInsets.all(BrandSpacing.md),
+                : Stack(
+                    children: [
+                      if (_isDocumentEmpty)
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: BrandSpacing.md,
+                              right: BrandSpacing.md,
+                              top: BrandSpacing.lg,
+                            ),
+                            child: Text(
+                              'Start typing your note here...',
+                              style: BrandTextStyles.small.copyWith(
+                                color: BrandColors.placeholder,
+                              ),
+                            ),
+                          ),
+                        ),
+                      FleatherEditor(
+                        controller: _controller!,
+                        focusNode: _focusNode,
+                        editorKey: _editorKey,
+                        maxContentWidth: 1000,
+                        padding: const EdgeInsets.all(BrandSpacing.md),
+                      ),
+                    ],
                   ),
           ),
         ],
