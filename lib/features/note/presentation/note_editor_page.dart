@@ -39,7 +39,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     _initFleatherController();
 
     // Trigger the load when page opens
-    Future.microtask(() {
+    Future.microtask(() async {
       ref
           .read(singleNoteControllerProvider.notifier)
           .loadNoteById(widget.noteId);
@@ -47,8 +47,17 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   }
 
   Future<void> _initFleatherController() async {
-    _controller = FleatherController();
-    setState(() {});
+    print("Initializing FleatherController...");
+    final heuristics = ParchmentHeuristics(
+      formatRules: [],
+      insertRules: [ForceNewlineForInsertsAroundInlineImageRule()],
+      deleteRules: [],
+    ).merge(ParchmentHeuristics.fallback);
+    final doc = ParchmentDocument.fromJson([
+      {"insert": "\n"},
+    ], heuristics: heuristics);
+    _controller = FleatherController(document: doc);
+    print("FleatherController initialized successfully.");
   }
 
   @override
@@ -176,6 +185,12 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
             textAlign: TextAlign.left,
           ),
           const SizedBox(height: BrandSpacing.lg),
+          if (_controller != null)
+            FleatherToolbar.basic(
+              controller: _controller!,
+              editorKey: _editorKey,
+            ),
+          Divider(height: 1, thickness: 1, color: BrandColors.subtleGrey),
           Expanded(
             child: _controller == null
                 ? const Center(child: CircularProgressIndicator())
@@ -183,11 +198,52 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
                     controller: _controller!,
                     focusNode: _focusNode,
                     editorKey: _editorKey,
-                    padding: const EdgeInsets.all(16),
+                    maxContentWidth: 1000,
+                    padding: const EdgeInsets.all(BrandSpacing.md),
                   ),
           ),
         ],
       ),
     );
+  }
+}
+
+/// This is an example insert rule that will insert a new line before and
+/// after inline image embed.
+class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
+  @override
+  Delta? apply(Delta document, int index, Object data) {
+    if (data is! String) return null;
+
+    final iter = DeltaIterator(document);
+    final previous = iter.skip(index);
+    final target = iter.next();
+    final cursorBeforeInlineEmbed = _isInlineImage(target.data);
+    final cursorAfterInlineEmbed =
+        previous != null && _isInlineImage(previous.data);
+
+    if (cursorBeforeInlineEmbed || cursorAfterInlineEmbed) {
+      final delta = Delta()..retain(index);
+      if (cursorAfterInlineEmbed && !data.startsWith('\n')) {
+        delta.insert('\n');
+      }
+      delta.insert(data);
+      if (cursorBeforeInlineEmbed && !data.endsWith('\n')) {
+        delta.insert('\n');
+      }
+      return delta;
+    }
+    return null;
+  }
+
+  bool _isInlineImage(Object data) {
+    if (data is EmbeddableObject) {
+      return data.type == 'image' && data.inline;
+    }
+    if (data is Map) {
+      return data[EmbeddableObject.kTypeKey] == 'image' &&
+          data[EmbeddableObject.kInlineKey];
+    }
+    return false;
   }
 }

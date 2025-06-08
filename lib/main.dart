@@ -3,11 +3,13 @@ import 'dart:ui';
 import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
 import 'package:ai_voice_note/theme/theme_data.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:fleather/l10n/fleather_localizations.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ai_voice_note/features/auth/application/auth_controller.dart';
 import 'package:ai_voice_note/features/home/presentation/home_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   await dotenv.load(fileName: '.env.dev');
@@ -40,7 +42,13 @@ class VoiceNoteApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'AI Voice Note',
       theme: lightTheme,
-
+      localizationsDelegates: const [
+        FleatherLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: FleatherLocalizations.supportedLocales,
       home: Consumer(
         builder: (context, ref, _) {
           final userAsync = ref.watch(currentUserProvider);
