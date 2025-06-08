@@ -114,9 +114,3 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
     }
   }
 }
-
-final listNoteProvider = FutureProvider<Map<String, List<Note>>>((ref) async {
-  final noteController = ref.read(noteControllerProvider.notifier);
-  await noteController.fetchNotesGroupedByDate();
-  return noteController.state.value?.notes ?? {}; // Safely access notes
-});

@@ -42,6 +42,7 @@ class _NoteListState extends ConsumerState<NoteList> {
 
   void _onScroll() {
     final noteState = ref.read(noteControllerProvider);
+
     noteState.when(
       data: (noteState) {
         if (_scrollController.position.pixels >=
@@ -58,7 +59,9 @@ class _NoteListState extends ConsumerState<NoteList> {
 
   @override
   Widget build(BuildContext context) {
-    final noteState = ref.watch(noteControllerProvider);
+    final noteState = ref.watch(
+      noteControllerProvider,
+    ); // rebuild the widget when that value changes
 
     return noteState.when(
       data: (noteState) {
@@ -128,14 +131,15 @@ class _NoteListState extends ConsumerState<NoteList> {
 Widget _buildDateSection(String label, List<Note> notes, WidgetRef ref) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: BrandSpacing.xs,
     children: [
       Text(
         label, // label of grouped notes
         style: BrandTextStyles.small,
       ),
-      const SizedBox(height: BrandSpacing.md),
+      const SizedBox(height: BrandSpacing.xs),
       ...notes.map((note) => _voiceNoteCard(note, ref)),
-      const SizedBox(height: BrandSpacing.lg),
+      const SizedBox(height: BrandSpacing.md),
     ],
   );
 }
@@ -261,11 +265,11 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
               );
             },
             child: Container(
-              margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
-              padding: const EdgeInsets.all(BrandSpacing.md),
+              // margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
+              padding: const EdgeInsets.all(BrandSpacing.sm),
               decoration: BoxDecoration(
                 color: isHovering ? Colors.grey.shade100 : Colors.white,
-                borderRadius: BrandRadius.large,
+                borderRadius: BrandRadius.medium,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.03),
@@ -275,58 +279,80 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                 ],
                 border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.note.title.isNotEmpty
-                        ? widget.note.title
-                        : 'Untitled Note',
-                    style: BrandTextStyles.small.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: BrandColors.textDark,
+                  // Note icon with grey squarish background
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BrandRadius.medium,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    child: Icon(
+                      Icons.insert_drive_file_outlined,
+                      color: Colors.blueGrey.shade200,
+                    ),
                   ),
-                  const SizedBox(height: 6),
-                  widget.note.title.isNotEmpty
-                      ? const Text(
-                          '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
-                          style: BrandTextStyles.small,
-                          maxLines: 2,
+                  const SizedBox(width: BrandSpacing.md),
+                  // Existing content of the card
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.note.title.isNotEmpty
+                              ? widget.note.title
+                              : 'Untitled Note',
+                          style: BrandTextStyles.small.copyWith(
+                            color: BrandColors.textDark,
+                          ),
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                        )
-                      : Text(
-                          'No description available.',
-                          style: BrandTextStyles.small,
                         ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        DateFormat(
-                          'hh:mm a',
-                        ).format(widget.note.createdAt.toLocal()),
-                        style: BrandTextStyles.extraSmall,
-                      ),
-                      Row(
-                        children: const [
-                          Icon(
-                            Icons.play_arrow,
-                            size: 18,
-                            color: BrandColors.primary,
-                          ),
-                          SizedBox(width: 6),
-                          Icon(
-                            Icons.auto_awesome,
-                            size: 16,
-                            color: BrandColors.primary,
-                          ),
-                        ],
-                      ),
-                    ],
+                        const SizedBox(height: BrandSpacing.xs),
+                        // tmp commment out description
+                        // widget.note.title.isNotEmpty
+                        //     ? const Text(
+                        //         '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
+                        //         style: BrandTextStyles.small,
+                        //         maxLines: 2,
+                        //         overflow: TextOverflow.ellipsis,
+                        //       )
+                        //     : Text(
+                        //         'No description available.',
+                        //         style: BrandTextStyles.small,
+                        //       ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              DateFormat(
+                                'hh:mm a',
+                              ).format(widget.note.createdAt.toLocal()),
+                              style: BrandTextStyles.extraSmall,
+                            ),
+                            // tmp comment out icons
+                            // Row(
+                            //   children: const [
+                            //     Icon(
+                            //       Icons.play_arrow,
+                            //       size: 18,
+                            //       color: BrandColors.primary,
+                            //     ),
+                            //     SizedBox(width: 6),
+                            //     Icon(
+                            //       Icons.auto_awesome,
+                            //       size: 16,
+                            //       color: BrandColors.primary,
+                            //     ),
+                            //   ],
+                            // ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
