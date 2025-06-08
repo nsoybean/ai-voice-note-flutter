@@ -52,5 +52,29 @@ class HttpClientWrapper {
     return _client.get(url, headers: updatedHeaders);
   }
 
-  // Add other HTTP methods (put, delete, etc.) as needed
+  Future<http.Response> put(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) async {
+    final userData = await AuthStorage().getUser();
+    if (userData?.jwt == null) {
+      throw Exception('User JWT token is null');
+    }
+
+    final updatedHeaders = {
+      ...?headers,
+      'Authorization': 'Bearer ${userData?.jwt}',
+    };
+
+    return _client.put(
+      url,
+      headers: updatedHeaders,
+      body: body,
+      encoding: encoding,
+    );
+  }
+
+  // Add other HTTP methods (delete, etc.) as needed
 }

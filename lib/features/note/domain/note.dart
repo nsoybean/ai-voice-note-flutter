@@ -11,6 +11,20 @@ class Note {
     required this.updatedAt,
   });
 
+  Note copyWith({
+    String? id,
+    String? title,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   factory Note.fromJson(Map<String, dynamic> json) {
     return Note(
       id: json['id'],
@@ -21,12 +35,11 @@ class Note {
   }
 
   factory Note.fromApiResponse(Map<String, dynamic> json) {
-    final data = json as Map<String, dynamic>;
     return Note(
-      id: data['id'] as String,
-      title: data['title'] as String? ?? '',
-      createdAt: DateTime.parse(data['createdAt'] as String),
-      updatedAt: DateTime.parse(data['updatedAt'] as String),
+      id: json['id'] as String,
+      title: json['title'] as String? ?? '',
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
 }
