@@ -166,9 +166,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) => setState(() => isHovering = true),
-      onExit: (_) => setState(() {
-        isHovering = false;
-      }),
+      onExit: (_) => setState(() => isHovering = false),
       child: Stack(
         children: [
           GestureDetector(
@@ -181,7 +179,6 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
               );
             },
             child: Container(
-              // margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
               padding: const EdgeInsets.all(BrandSpacing.sm),
               decoration: BoxDecoration(
                 color: isHovering ? BrandColors.subtleGrey : Colors.white,
@@ -198,7 +195,6 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Note icon with grey squarish background
                   Container(
                     width: 40,
                     height: 40,
@@ -212,7 +208,6 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                     ),
                   ),
                   const SizedBox(width: BrandSpacing.md),
-                  // Existing content of the card
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,70 +223,46 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: BrandSpacing.xs),
-                        // tmp commment out description
-                        // widget.note.title.isNotEmpty
-                        //     ? const Text(
-                        //         '“Let’s prioritize onboarding flow before Monday. Also check the summary section alignment...”',
-                        //         style: BrandTextStyles.small,
-                        //         maxLines: 2,
-                        //         overflow: TextOverflow.ellipsis,
-                        //       )
-                        //     : Text(
-                        //         'No description available.',
-                        //         style: BrandTextStyles.small,
-                        //       ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              DateFormat(
-                                'hh:mm a',
-                              ).format(widget.note.createdAt.toLocal()),
-                              style: BrandTextStyles.extraSmall,
-                            ),
-                            // tmp comment out icons
-                            // Row(
-                            //   children: const [
-                            //     Icon(
-                            //       Icons.play_arrow,
-                            //       size: 18,
-                            //       color: BrandColors.primary,
-                            //     ),
-                            //     SizedBox(width: 6),
-                            //     Icon(
-                            //       Icons.auto_awesome,
-                            //       size: 16,
-                            //       color: BrandColors.primary,
-                            //     ),
-                            //   ],
-                            // ),
-                            IconButton(
-                              icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () async {
-                                try {
-                                  await widget.ref
-                                      .read(
-                                        singleNoteControllerProvider.notifier,
-                                      )
-                                      .deleteNoteById(widget.note.id);
-                                  widget.ref
-                                      .read(noteControllerProvider.notifier)
-                                      .fetchNotesGroupedByDate();
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Failed to delete note: $e',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ],
+                        Text(
+                          DateFormat(
+                            'hh:mm a',
+                          ).format(widget.note.createdAt.toLocal()),
+                          style: BrandTextStyles.extraSmall,
                         ),
                       ],
                     ),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (value) async {
+                      if (value == 'delete') {
+                        try {
+                          await widget.ref
+                              .read(singleNoteControllerProvider.notifier)
+                              .deleteNoteById(widget.note.id);
+                          widget.ref
+                              .read(noteControllerProvider.notifier)
+                              .fetchNotesGroupedByDate();
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to delete note: $e'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: const [
+                            Icon(Icons.delete, color: Colors.red, size: 18),
+                            SizedBox(width: 8),
+                            Text('Delete'),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
