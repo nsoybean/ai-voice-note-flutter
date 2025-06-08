@@ -4,21 +4,29 @@ import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
 import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ai_voice_note/features/note/application/note_controller.dart';
 
-class NoteEditorPage extends StatelessWidget {
+class NoteEditorPage extends ConsumerWidget {
   final String noteId;
 
   const NoteEditorPage({Key? key, required this.noteId}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: BrandColors.backgroundLight,
       body: Column(
         children: [
           SizedBox(
             height: 40,
-            child: ReusableAppBar(showToggle: false, showBackIcon: true),
+            child: ReusableAppBar(
+              showToggle: false,
+              showBackIcon: true,
+              onBackCallback: () {
+                ref.read(noteControllerProvider.notifier).refreshNotes();
+              },
+            ),
           ),
           Expanded(
             child: Container(

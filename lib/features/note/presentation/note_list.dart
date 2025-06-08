@@ -59,9 +59,8 @@ class _NoteListState extends ConsumerState<NoteList> {
 
   @override
   Widget build(BuildContext context) {
-    final noteState = ref.watch(
-      noteControllerProvider,
-    ); // rebuild the widget when that value changes
+    // Use ref.watch to listen for changes and rebuild the widget
+    final noteState = ref.watch(noteControllerProvider);
 
     return noteState.when(
       data: (noteState) {
@@ -79,9 +78,7 @@ class _NoteListState extends ConsumerState<NoteList> {
                 ),
                 children: notes.entries.map((entry) {
                   final dateKey = entry.key;
-                  // Convert dateKey to local time
                   final date = DateTime.parse(dateKey);
-                  // Ensure now is in local time
                   final now = DateTime.now();
 
                   String label;
@@ -101,18 +98,17 @@ class _NoteListState extends ConsumerState<NoteList> {
                 }).toList(),
               ),
             ),
-            noteState.isLoadingMore
-                ? Padding(
-                    padding: const EdgeInsets.all(BrandSpacing.md),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2, // Make the spinner thinner
-                      ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+            if (noteState.isLoadingMore)
+              Padding(
+                padding: const EdgeInsets.all(BrandSpacing.md),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2, // Make the spinner thinner
+                  ),
+                ),
+              ),
           ],
         );
       },

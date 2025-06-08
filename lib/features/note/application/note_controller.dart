@@ -113,4 +113,9 @@ class NoteController extends StateNotifier<AsyncValue<NoteState>> {
       state = AsyncValue.error(error, stack);
     }
   }
+
+  Future<void> refreshNotes() async {
+    _currentPage = 1; // Reset to the first page
+    await fetchNotesGroupedByDate();
+  }
 }

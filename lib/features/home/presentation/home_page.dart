@@ -26,25 +26,25 @@ class _HomePageState extends State<HomePage> with RouteAware {
   bool isSidebarExpanded = true;
   int selectedIndex = 0;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Subscribe to RouteObserver
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   // Subscribe to RouteObserver
+  //   routeObserver.subscribe(this, ModalRoute.of(context)!);
+  // }
 
-  @override
-  void dispose() {
-    // Unsubscribe from RouteObserver
-    routeObserver.unsubscribe(this);
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   // Unsubscribe from RouteObserver
+  //   routeObserver.unsubscribe(this);
+  //   super.dispose();
+  // }
 
-  @override
-  void didPopNext() {
-    // Called when returning to this page
-    ref.read(noteControllerProvider.notifier).fetchNotesGroupedByDate();
-  }
+  // @override
+  // void didPopNext() {
+  //   // Called when returning to this page
+  //   ref.read(noteControllerProvider.notifier).fetchNotesGroupedByDate();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -293,6 +293,7 @@ class ReusableAppBar extends StatelessWidget {
   final bool showToggle;
   final bool showBackIcon;
   final VoidCallback? onBack;
+  final VoidCallback? onBackCallback; // New callback for back action
   final List<Widget>? rightActions;
 
   const ReusableAppBar({
@@ -301,6 +302,7 @@ class ReusableAppBar extends StatelessWidget {
     this.showToggle = true,
     this.showBackIcon = false,
     this.onBack,
+    this.onBackCallback, // Initialize the new callback
     this.rightActions,
   });
 
@@ -320,7 +322,16 @@ class ReusableAppBar extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.arrow_back, size: 18),
               tooltip: 'Go Back',
-              onPressed: onBack ?? () => Navigator.of(context).pop(),
+              onPressed: () {
+                if (onBackCallback != null) {
+                  onBackCallback!(); // Trigger the callback if provided
+                }
+                if (onBack != null) {
+                  onBack!(); // Trigger the default back action
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           Expanded(child: MoveWindow()),
           if (rightActions != null) ...rightActions!,
