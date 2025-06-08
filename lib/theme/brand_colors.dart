@@ -28,4 +28,9 @@ class BrandColors {
   static const Color success = Color(0xFFD1FAE5); // Light pastel green
   static const Color warning = Color(0xFFFFF7CD); // Light pastel yellow
   static const Color error = Color(0xFFFECACA); // Light pastel red
+
+  // 🖋️ Placeholder Color
+  static const Color placeholder = Color(
+    0xFF9CA3AF,
+  ); // Cool grey for placeholder text
 }

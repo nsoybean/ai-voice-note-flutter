@@ -37,7 +37,17 @@ class NoteEditorPage extends ConsumerWidget {
               ),
               child: ListView(
                 children: [
-                  Text('Editing Note', style: BrandTextStyles.h2),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Untitled',
+                      hintStyle: BrandTextStyles.h2.copyWith(
+                        color: BrandColors.placeholder,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    style: BrandTextStyles.h2,
+                  ),
                   const SizedBox(height: BrandSpacing.sm),
                   Text('Note ID: $noteId', style: BrandTextStyles.small),
                   const SizedBox(height: BrandSpacing.lg),
