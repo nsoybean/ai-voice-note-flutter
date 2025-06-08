@@ -266,11 +266,11 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
               // margin: const EdgeInsets.only(bottom: BrandSpacing.sm),
               padding: const EdgeInsets.all(BrandSpacing.sm),
               decoration: BoxDecoration(
-                color: isHovering ? Colors.grey.shade100 : Colors.white,
+                color: isHovering ? BrandColors.subtleGrey : Colors.white,
                 borderRadius: BrandRadius.medium,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: BrandColors.subtleGrey.withOpacity(0.2),
                     blurRadius: 6,
                     offset: const Offset(0, 1),
                   ),

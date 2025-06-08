@@ -106,16 +106,25 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                             icon: Icon(Icons.home),
                                             label: Text('Home'),
                                           ),
-                                          NavigationRailDestination(
-                                            icon: Icon(Icons.folder),
-                                            label: Text('Folders'),
-                                          ),
+                                          // tmp comment out
+                                          // NavigationRailDestination(
+                                          //   icon: Icon(Icons.folder),
+                                          //   label: Text('Folders'),
+                                          // ),
                                         ],
                                       ),
                                     ),
                                   ),
+                                  // divider
+                                  Divider(
+                                    height: 1,
+                                    thickness: 1,
+                                    color: Colors.grey.shade200,
+                                  ),
                                   Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
+                                    padding: const EdgeInsets.only(
+                                      bottom: BrandSpacing.xs,
+                                    ),
                                     child: AnimatedSize(
                                       duration: const Duration(
                                         milliseconds: 250,
@@ -135,6 +144,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                     Expanded(
                       child: Center(
                         child: Container(
+                          color: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: BrandSpacing.xs,
                           ),
