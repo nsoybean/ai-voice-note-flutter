@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_voice_note/features/home/presentation/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
@@ -20,11 +22,17 @@ class NoteEditorPage extends ConsumerStatefulWidget {
 }
 
 class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
+  late TextEditingController _titleController;
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
 
-    // trigger the load when page opens
+    // Initialize the title controller
+    _titleController = TextEditingController();
+
+    // Trigger the load when page opens
     Future.microtask(() {
       ref
           .read(singleNoteControllerProvider.notifier)
@@ -33,8 +41,28 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   }
 
   @override
+  void dispose() {
+    _debounce?.cancel();
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  void _onTitleChanged(String newTitle) {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      ref
+          .read(singleNoteControllerProvider.notifier)
+          .updateNoteTitle(widget.noteId, newTitle);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final singleNoteState = ref.watch(singleNoteControllerProvider);
+
+    if (singleNoteState.note != null) {
+      _titleController.text = singleNoteState.note!.title;
+    }
 
     return Scaffold(
       backgroundColor: BrandColors.backgroundLight,
@@ -109,6 +137,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     return ListView(
       children: [
         TextField(
+          controller: _titleController,
+          onChanged: _onTitleChanged,
           decoration: InputDecoration(
             hintText: state.note!.title.isNotEmpty
                 ? state.note!.title

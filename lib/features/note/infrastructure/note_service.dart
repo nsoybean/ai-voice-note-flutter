@@ -58,7 +58,7 @@ class NoteService {
 
   Future<void> updateNoteTitle(String noteId, String newTitle) async {
     final res = await httpClient.put(
-      Uri.parse('http://127.0.0.1:3000/note/$noteId'),
+      Uri.parse('http://127.0.0.1:3000/note/$noteId/title'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
