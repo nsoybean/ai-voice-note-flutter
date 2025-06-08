@@ -10,6 +10,7 @@ import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ai_voice_note/features/note/application/note_controller.dart';
 import 'package:ai_voice_note/features/note/application/single_note_controller.dart';
+import 'package:fleather/fleather.dart';
 
 class NoteEditorPage extends ConsumerStatefulWidget {
   final String noteId;
@@ -25,6 +26,9 @@ class NoteEditorPage extends ConsumerStatefulWidget {
 class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   late TextEditingController _titleController;
   Timer? _debounce;
+  final FocusNode _focusNode = FocusNode();
+  final GlobalKey<EditorState> _editorKey = GlobalKey();
+  FleatherController? _controller;
 
   @override
   void initState() {
@@ -32,6 +36,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
     // Initialize the title controller
     _titleController = TextEditingController();
+    _initFleatherController();
 
     // Trigger the load when page opens
     Future.microtask(() {
@@ -41,10 +46,16 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     });
   }
 
+  Future<void> _initFleatherController() async {
+    _controller = FleatherController();
+    setState(() {});
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
     _titleController.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -135,48 +146,48 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
       );
     }
 
-    return ListView(
-      children: [
-        TextField(
-          controller: _titleController,
-          onChanged: _onTitleChanged,
-          decoration: InputDecoration(
-            hintText: state.note!.title.isNotEmpty
-                ? state.note!.title
-                : 'Untitled',
-            hintStyle: BrandTextStyles.h2.copyWith(
-              color: BrandColors.placeholder,
+    return Align(
+      alignment:
+          Alignment.centerLeft, // Align all items in the column to the left
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start, // Ensure children are aligned left
+        children: [
+          TextField(
+            controller: _titleController,
+            onChanged: _onTitleChanged,
+            decoration: InputDecoration(
+              hintText: state.note!.title.isNotEmpty
+                  ? state.note!.title
+                  : 'Untitled',
+              hintStyle: BrandTextStyles.h2.copyWith(
+                color: BrandColors.placeholder,
+              ),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
             ),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
+            style: BrandTextStyles.h2,
+            textAlign: TextAlign.left,
           ),
-          style: BrandTextStyles.h2,
-        ),
-        const SizedBox(height: BrandSpacing.xs),
-        Text(
-          'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(state.note!.createdAt.toLocal())}',
-          style: BrandTextStyles.small,
-        ),
-        const SizedBox(height: BrandSpacing.lg),
-        TextField(
-          decoration: InputDecoration(
-            hintText: 'Start writing here...',
-            hintStyle: BrandTextStyles.body.copyWith(
-              color: BrandColors.subtext,
-            ),
-            filled: true,
-            fillColor: BrandColors.subtleGrey,
-            border: OutlineInputBorder(
-              borderRadius: BrandRadius.medium,
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.all(BrandSpacing.md),
+          const SizedBox(height: BrandSpacing.xs),
+          Text(
+            'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(state.note!.createdAt.toLocal())}',
+            style: BrandTextStyles.small,
+            textAlign: TextAlign.left,
           ),
-          maxLines: null,
-          keyboardType: TextInputType.multiline,
-          style: BrandTextStyles.body,
-        ),
-      ],
+          const SizedBox(height: BrandSpacing.lg),
+          Expanded(
+            child: _controller == null
+                ? const Center(child: CircularProgressIndicator())
+                : FleatherEditor(
+                    controller: _controller!,
+                    focusNode: _focusNode,
+                    editorKey: _editorKey,
+                    padding: const EdgeInsets.all(16),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
