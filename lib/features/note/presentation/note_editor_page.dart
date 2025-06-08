@@ -6,6 +6,7 @@ import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ai_voice_note/features/note/application/note_controller.dart';
+import 'package:ai_voice_note/features/note/application/single_note_controller.dart';
 
 class NoteEditorPage extends ConsumerWidget {
   final String noteId;
@@ -16,6 +17,8 @@ class NoteEditorPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final singleNoteState = ref.watch(singleNoteControllerProvider);
+
     return Scaffold(
       backgroundColor: BrandColors.backgroundLight,
       body: Column(
@@ -37,44 +40,92 @@ class NoteEditorPage extends ConsumerWidget {
                 vertical: BrandSpacing.xl,
                 horizontal: BrandSpacing.xxl,
               ),
-              child: ListView(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: (this.title != '')
-                          ? title
-                          : 'Untitled', // Render title if provided
-                      hintStyle: BrandTextStyles.h2.copyWith(
-                        color: BrandColors.placeholder,
+              child: singleNoteState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : singleNoteState.note == null
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: BrandColors.subtext,
+                          ),
+                          const SizedBox(height: BrandSpacing.md),
+                          Text(
+                            "Note not found",
+                            style: BrandTextStyles.h2.copyWith(
+                              color: BrandColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: BrandSpacing.sm),
+                          Text(
+                            "We couldn’t find the note you’re looking for.\nIt may have been deleted or the link is incorrect.",
+                            style: BrandTextStyles.small,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: BrandSpacing.lg),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: BrandColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BrandRadius.medium,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: BrandSpacing.xl,
+                                vertical: BrandSpacing.sm,
+                              ),
+                            ),
+                            child: const Text("Back to Notes"),
+                          ),
+                        ],
                       ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
+                    )
+                  : ListView(
+                      children: [
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: singleNoteState.note!.title.isNotEmpty
+                                ? singleNoteState.note!.title
+                                : 'Untitled',
+                            hintStyle: BrandTextStyles.h2.copyWith(
+                              color: BrandColors.placeholder,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          style: BrandTextStyles.h2,
+                        ),
+                        const SizedBox(height: BrandSpacing.sm),
+                        Text('Note ID: $noteId', style: BrandTextStyles.small),
+                        const SizedBox(height: BrandSpacing.lg),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Start writing here...',
+                            hintStyle: BrandTextStyles.body.copyWith(
+                              color: BrandColors.subtext,
+                            ),
+                            filled: true,
+                            fillColor: BrandColors.subtleGrey,
+                            border: OutlineInputBorder(
+                              borderRadius: BrandRadius.medium,
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.all(
+                              BrandSpacing.md,
+                            ),
+                          ),
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          style: BrandTextStyles.body,
+                        ),
+                      ],
                     ),
-                    style: BrandTextStyles.h2,
-                  ),
-                  const SizedBox(height: BrandSpacing.sm),
-                  Text('Note ID: $noteId', style: BrandTextStyles.small),
-                  const SizedBox(height: BrandSpacing.lg),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Start writing here...',
-                      hintStyle: BrandTextStyles.body.copyWith(
-                        color: BrandColors.subtext,
-                      ),
-                      filled: true,
-                      fillColor: BrandColors.subtleGrey,
-                      border: OutlineInputBorder(
-                        borderRadius: BrandRadius.medium,
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.all(BrandSpacing.md),
-                    ),
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    style: BrandTextStyles.body,
-                  ),
-                ],
-              ),
             ),
           ),
         ],
