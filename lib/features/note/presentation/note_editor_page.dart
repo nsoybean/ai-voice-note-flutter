@@ -9,8 +9,10 @@ import 'package:ai_voice_note/features/note/application/note_controller.dart';
 
 class NoteEditorPage extends ConsumerWidget {
   final String noteId;
+  final String? title; // Optional title
 
-  const NoteEditorPage({Key? key, required this.noteId}) : super(key: key);
+  const NoteEditorPage({Key? key, required this.noteId, this.title = ''})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +41,9 @@ class NoteEditorPage extends ConsumerWidget {
                 children: [
                   TextField(
                     decoration: InputDecoration(
-                      hintText: 'Untitled',
+                      hintText: (this.title != '')
+                          ? title
+                          : 'Untitled', // Render title if provided
                       hintStyle: BrandTextStyles.h2.copyWith(
                         color: BrandColors.placeholder,
                       ),
