@@ -90,7 +90,12 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   Widget build(BuildContext context) {
     final singleNoteState = ref.watch(singleNoteControllerProvider);
 
-    if (singleNoteState.note != null) {
+    if (singleNoteState.note != null &&
+        _titleController.text !=
+            singleNoteState
+                .note!
+                .title // add this check, so that cursor position not reset for the same title
+                ) {
       _titleController.text = singleNoteState.note!.title;
     }
 
