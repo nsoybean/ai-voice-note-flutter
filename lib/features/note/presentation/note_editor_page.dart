@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 import 'package:ai_voice_note/features/home/presentation/home_page.dart';
 import 'package:flutter/material.dart';
@@ -151,8 +152,11 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           ),
           style: BrandTextStyles.h2,
         ),
-        const SizedBox(height: BrandSpacing.sm),
-        Text('Note ID: ${widget.noteId}', style: BrandTextStyles.small),
+        const SizedBox(height: BrandSpacing.xs),
+        Text(
+          'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(state.note!.createdAt.toLocal())}',
+          style: BrandTextStyles.small,
+        ),
         const SizedBox(height: BrandSpacing.lg),
         TextField(
           decoration: InputDecoration(
