@@ -199,7 +199,10 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                           textStyle: BrandTextStyles.body,
                           alignment: Alignment.center,
                         ),
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () {
+                          // Close the dialog without triggering any state changes
+                          Navigator.of(context).pop();
+                        },
                         child: const Text('Cancel'),
                       ),
                       const SizedBox(width: BrandSpacing.sm),
