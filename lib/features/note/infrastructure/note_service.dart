@@ -73,7 +73,7 @@ class NoteService {
 
   Future<Note> fetchNoteById(String noteId) async {
     final res = await httpClient.get(
-      Uri.parse('http://127.0.0.1:3000/note/$noteId'),
+      Uri.parse('http://127.0.0.1:3000/note/$noteId/detail'),
       headers: {'Accept': 'application/json'},
     );
 
