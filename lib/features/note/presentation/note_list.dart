@@ -233,6 +233,14 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                     ),
                   ),
                   PopupMenuButton<String>(
+                    offset: const Offset(0, 36),
+                    menuPadding: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BrandRadius.medium,
+                    ),
+                    color: Colors.white,
+                    surfaceTintColor: Colors.transparent,
+                    elevation: 2,
                     onSelected: (value) async {
                       if (value == 'delete') {
                         try {
@@ -256,13 +264,23 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                         value: 'delete',
                         child: Row(
                           children: const [
-                            Icon(Icons.delete, color: Colors.red, size: 18),
+                            Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                              size: 18,
+                            ),
                             SizedBox(width: 8),
-                            Text('Delete'),
+                            Text('Delete', style: BrandTextStyles.small),
                           ],
                         ),
                       ),
                     ],
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: BrandColors.placeholder,
+                      size: 20,
+                    ),
+                    tooltip: 'More options',
                   ),
                 ],
               ),

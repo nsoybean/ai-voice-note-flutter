@@ -3,6 +3,7 @@ import 'package:ai_voice_note/features/auth/presentation/auth_home_page.dart';
 import 'package:ai_voice_note/features/auth/shared/auth_storage.dart';
 import 'package:ai_voice_note/features/note/presentation/note_list.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
+import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
@@ -193,12 +194,11 @@ class _HoverableProfileState extends State<_HoverableProfile> {
         ),
         child: PopupMenuButton<String>(
           offset: const Offset(0, -10),
+          menuPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
           color: Colors.white,
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          tooltip: 'User menu',
+          elevation: 2,
+          tooltip: 'Profile',
           onSelected: (value) {
             if (value == 'settings') {
               showDialog(
@@ -235,17 +235,14 @@ class _HoverableProfileState extends State<_HoverableProfile> {
             PopupMenuItem(
               value: 'settings',
               child: ListTile(
-                leading: Icon(Icons.settings, color: Colors.black),
-                title: Text(
-                  'Settings',
-                  style: BrandTextStyles.small.copyWith(color: Colors.black),
-                ),
+                leading: Icon(Icons.settings, color: Colors.black, size: 18),
+                title: Text('Settings', style: BrandTextStyles.small),
               ),
             ),
             PopupMenuItem(
               value: 'logout',
               child: ListTile(
-                leading: Icon(Icons.logout, color: Colors.red),
+                leading: Icon(Icons.logout, color: Colors.red, size: 18),
                 title: Text(
                   'Log Out',
                   style: BrandTextStyles.small.copyWith(color: Colors.red),
