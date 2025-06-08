@@ -263,14 +263,19 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                       PopupMenuItem(
                         value: 'delete',
                         child: Row(
-                          children: const [
+                          children: [
                             Icon(
                               Icons.delete_outline,
                               color: Colors.red,
                               size: 18,
                             ),
                             SizedBox(width: 8),
-                            Text('Delete', style: BrandTextStyles.small),
+                            Text(
+                              'Delete',
+                              style: BrandTextStyles.small.copyWith(
+                                color: BrandColors.textDark,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -280,7 +285,7 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                       color: BrandColors.placeholder,
                       size: 20,
                     ),
-                    tooltip: 'More options',
+                    tooltip: 'Options',
                   ),
                 ],
               ),
