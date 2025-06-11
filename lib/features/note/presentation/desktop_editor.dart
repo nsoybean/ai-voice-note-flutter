@@ -94,9 +94,8 @@ class _DesktopEditorState extends State<DesktopEditor> {
           editorStyle: editorStyle,
           enableAutoComplete: true,
           autoCompleteTextProvider: _buildAutoCompleteTextProvider,
-          dropTargetStyle: const AppFlowyDropTargetStyle(
-            color: Colors.red,
-          ),
+          dropTargetStyle: AppFlowyDropTargetStyle(
+              color: BrandColors.primary.withOpacity(0.5)),
           // commented out
           // header: Padding(
           //   padding: const EdgeInsets.only(bottom: 10.0),

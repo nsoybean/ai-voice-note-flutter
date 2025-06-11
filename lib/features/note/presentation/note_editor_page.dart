@@ -27,23 +27,11 @@ class NoteEditorPage extends ConsumerStatefulWidget {
 
 class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   late TextEditingController _titleController;
-
-  late WidgetBuilder _widgetBuilder;
-  late EditorState _editorState;
-  late Future<String> _jsonString;
+  EditorState? _editorState;
 
   @override
   void initState() {
     super.initState();
-
-    _widgetBuilder = (context) => MyTextEditor(
-          jsonString: Future<String>.value(jsonEncode(
-            EditorState.blank(withInitialText: true).document.toJson(),
-          ).toString()),
-          onEditorStateChange: (editorState) {
-            print('🚀 ${jsonEncode(editorState.document.toJson())}');
-          },
-        );
 
     // title controller
     _titleController = TextEditingController();
@@ -58,20 +46,25 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
   @override
   void dispose() {
+    // Clear all data when the widget is disposed
+    ref.read(singleNoteControllerProvider.notifier).clearData();
     _titleController.dispose();
     super.dispose();
   }
 
-  void _onTitleDefocused() {
-    final newTitle = _titleController.text.trim();
-    final singleNoteState = ref.read(singleNoteControllerProvider);
+  @override
+  void didUpdateWidget(NoteEditorPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-    if (newTitle.isNotEmpty &&
-        singleNoteState.note != null &&
-        newTitle != singleNoteState.note!.title) {
-      ref
-          .read(singleNoteControllerProvider.notifier)
-          .updateNoteTitle(widget.noteId, newTitle);
+    if (oldWidget.noteId != widget.noteId) {
+      // Reset the editor state when the noteId changes
+      _editorState = null;
+      // Trigger the load for the new noteId
+      Future.microtask(() async {
+        await ref
+            .read(singleNoteControllerProvider.notifier)
+            .loadNoteById(widget.noteId);
+      });
     }
   }
 
@@ -154,6 +147,11 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
       );
     }
 
+    // Init editor state when the note loads
+    _editorState ??= EditorState(
+      document: Document.fromJson(state.note!.content),
+    );
+
     return Align(
       alignment:
           Alignment.centerLeft, // Align all items in the column to the left
@@ -196,14 +194,49 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
               const SizedBox(height: BrandSpacing.lg),
               Expanded(
                 child: SafeArea(
-                  maintainBottomViewPadding: true,
-                  child: _widgetBuilder(context),
-                ),
+                    maintainBottomViewPadding: true,
+                    child: Focus(
+                      onFocusChange: (hasFocus) {
+                        if (!hasFocus) {
+                          final newContent = _editorState!.document.toJson();
+                          final singleNoteState =
+                              ref.read(singleNoteControllerProvider);
+
+                          if (singleNoteState.note != null &&
+                              jsonEncode(newContent) !=
+                                  jsonEncode(singleNoteState.note!.content)) {
+                            ref
+                                .read(singleNoteControllerProvider.notifier)
+                                .updateNoteContent(widget.noteId, newContent);
+                          }
+                        }
+                      },
+                      child: MyTextEditor(
+                        jsonString: Future.value(
+                            jsonEncode(_editorState!.document.toJson())),
+                        onEditorStateChange: (newState) {
+                          _editorState = newState;
+                        },
+                      ),
+                    )),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _onTitleDefocused() {
+    final newTitle = _titleController.text.trim();
+    final singleNoteState = ref.read(singleNoteControllerProvider);
+
+    if (newTitle.isNotEmpty &&
+        singleNoteState.note != null &&
+        newTitle != singleNoteState.note!.title) {
+      ref
+          .read(singleNoteControllerProvider.notifier)
+          .updateNoteTitle(widget.noteId, newTitle);
+    }
   }
 }

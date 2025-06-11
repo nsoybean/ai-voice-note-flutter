@@ -71,6 +71,22 @@ class NoteService {
     }
   }
 
+  Future<void> updateNoteContent(
+      String noteId, Map<String, Object> newContent) async {
+    final res = await httpClient.put(
+      Uri.parse('http://127.0.0.1:3000/note/$noteId/content'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({'content': newContent}),
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception('Failed to update note content: ${res.statusCode}');
+    }
+  }
+
   Future<Note> fetchNoteById(String noteId) async {
     final res = await httpClient.get(
       Uri.parse('http://127.0.0.1:3000/note/$noteId/detail'),

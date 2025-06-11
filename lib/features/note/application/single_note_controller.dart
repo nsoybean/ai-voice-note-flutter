@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/note.dart';
 import '../infrastructure/note_service.dart';
@@ -20,8 +22,8 @@ class SingleNoteState {
 
 final singleNoteControllerProvider =
     StateNotifierProvider<SingleNoteController, SingleNoteState>((ref) {
-      return SingleNoteController(noteService: ref.read(noteServiceProvider));
-    });
+  return SingleNoteController(noteService: ref.read(noteServiceProvider));
+});
 
 class SingleNoteController extends StateNotifier<SingleNoteState> {
   final NoteService noteService;
@@ -48,6 +50,17 @@ class SingleNoteController extends StateNotifier<SingleNoteState> {
     }
   }
 
+  Future<void> updateNoteContent(
+      String noteId, Map<String, Object> newContent) async {
+    try {
+      await noteService.updateNoteContent(noteId, newContent);
+      final updatedNote = state.note?.copyWith(content: newContent);
+      state = state.copyWith(note: updatedNote);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
   Future<void> deleteNoteById(String noteId) async {
     // state = state.copyWith(isLoading: true);
     try {
@@ -56,5 +69,9 @@ class SingleNoteController extends StateNotifier<SingleNoteState> {
     } catch (e) {
       // state = state.copyWith(error: e.toString(), isLoading: false);
     }
+  }
+
+  void clearData() {
+    state = SingleNoteState();
   }
 }
