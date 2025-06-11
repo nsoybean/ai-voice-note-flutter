@@ -41,8 +41,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
             EditorState.blank(withInitialText: true).document.toJson(),
           ).toString()),
           onEditorStateChange: (editorState) {
-            _editorState = EditorState.blank(withInitialText: true);
-            print('🚀🚀🚀 ${jsonEncode(_editorState.document.toJson())}');
+            print('🚀 ${jsonEncode(editorState.document.toJson())}');
           },
         );
 

@@ -1,6 +1,4 @@
-import 'package:ai_voice_note/features/note/presentation/drag_to_reorder_editor.dart';
 import 'package:ai_voice_note/theme/brand_colors.dart';
-import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:ai_voice_note/theme/brand_text_styles.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -71,10 +69,8 @@ class _DesktopEditorState extends State<DesktopEditor> {
         quoteItem,
         bulletedListItem,
         numberedListItem,
-        linkItem,
         buildTextColorItem(),
         buildHighlightColorItem(),
-        // ...textDirectionItems, // comment out LTR/RTL toggle for now
         ...alignmentItems,
       ],
       tooltipBuilder: (context, _, message, child) {
@@ -124,12 +120,16 @@ class _DesktopEditorState extends State<DesktopEditor> {
       selectionColor: Colors.blue.shade100,
       textStyleConfiguration: TextStyleConfiguration(
           text: BrandTextStyles.body,
-          code: TextStyle(
-            fontSize: BrandTextStyles.body.fontSize,
-            fontWeight: BrandTextStyles.body.fontWeight,
-            color: Colors.red.shade300,
-            fontFamily: 'mono',
-            backgroundColor: BrandColors.subtleGrey,
+          href: TextStyle(
+              color: BrandColors.primary,
+              decoration: TextDecoration.underline,
+              backgroundColor: Colors.transparent),
+          code: GoogleFonts.robotoMono(
+            textStyle: TextStyle(
+                fontSize: BrandTextStyles.body.fontSize,
+                fontWeight: FontWeight.normal,
+                color: Colors.red,
+                backgroundColor: BrandColors.subtleGrey),
           ),
           bold: BrandTextStyles.body.copyWith(fontWeight: FontWeight.w800)),
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -285,7 +285,12 @@ class _DesktopEditorState extends State<DesktopEditor> {
       ...[
         ...standardCommandShortcutEvents
           ..removeWhere(
-            (el) => el == toggleHighlightCommand,
+            (el) =>
+                el == toggleHighlightCommand ||
+                // remove hyperlinks for now
+                el == showLinkMenuCommand ||
+                el == openInlineLinkCommand ||
+                el == openLinksCommand,
           ),
       ],
       ...findAndReplaceCommands(
