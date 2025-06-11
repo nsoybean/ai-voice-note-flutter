@@ -58,7 +58,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   @override
   Widget build(BuildContext context) {
     final singleNoteState = ref.watch(singleNoteControllerProvider);
-    print('🚀 single note state title: ${singleNoteState.note?.title}');
+    // print('🚀 single note state title: ${singleNoteState.note?.title}');
 
     // set title
     if (singleNoteState.note != null &&
