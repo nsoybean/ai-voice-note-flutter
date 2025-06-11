@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:ai_voice_note/features/note/presentation/desktop_editor.dart';
+import 'package:ai_voice_note/theme/brand_colors.dart';
+import 'package:ai_voice_note/theme/brand_radius.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -130,9 +132,10 @@ class _EditorState extends State<MyTextEditor> {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: BrandColors.subtleGrey,
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(8),
+                topLeft: BrandRadius.medium.topLeft,
+                topRight: BrandRadius.medium.topRight,
                 bottomLeft: UniversalPlatform.isMobile
                     ? const Radius.circular(8)
                     : Radius.zero,
