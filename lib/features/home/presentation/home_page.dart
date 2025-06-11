@@ -177,9 +177,8 @@ class _HoverableProfileState extends State<_HoverableProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isHovering
-        ? BrandColors.subtleGrey
-        : Colors.transparent; // light hover
+    final bgColor =
+        isHovering ? BrandColors.subtleGrey : Colors.transparent; // light hover
 
     return MouseRegion(
       onEnter: (_) => setState(() => isHovering = true),

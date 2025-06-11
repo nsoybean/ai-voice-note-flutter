@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'package:ai_voice_note/features/home/presentation/home_page.dart';
@@ -10,14 +12,14 @@ import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ai_voice_note/features/note/application/note_controller.dart';
 import 'package:ai_voice_note/features/note/application/single_note_controller.dart';
-import 'package:fleather/fleather.dart';
+import 'package:provider/provider.dart';
 
 class NoteEditorPage extends ConsumerStatefulWidget {
   final String noteId;
   final String? title;
 
   const NoteEditorPage({Key? key, required this.noteId, this.title = ''})
-    : super(key: key);
+      : super(key: key);
 
   @override
   ConsumerState<NoteEditorPage> createState() => _NoteEditorPageState();
@@ -27,25 +29,19 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   late TextEditingController _titleController;
   Timer? _debounce;
   final FocusNode _focusNode = FocusNode();
-  final GlobalKey<EditorState> _editorKey = GlobalKey();
-  FleatherController? _controller;
+
   bool _isDocumentEmpty = true; // Variable to track if the document is empty
+  late EditorState _editorState;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize the title controller
-    _titleController = TextEditingController();
-    _initFleatherController();
+    // editor
+    _editorState = EditorState.blank(withInitialText: true);
 
-    // Listen to document changes
-    _controller?.document.changes.listen((event) {
-      final updatedText = _controller?.document.toPlainText();
-      _isDocumentEmpty = updatedText?.trim().isEmpty ?? true;
-      print('Updated document content: $updatedText');
-      setState(() {}); // Trigger UI update
-    });
+    // title controller
+    _titleController = TextEditingController();
 
     // Trigger the load when page opens
     Future.microtask(() async {
@@ -55,25 +51,10 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     });
   }
 
-  Future<void> _initFleatherController() async {
-    print("Initializing FleatherController...");
-    final heuristics = ParchmentHeuristics(
-      formatRules: [],
-      insertRules: [ForceNewlineForInsertsAroundInlineImageRule()],
-      deleteRules: [],
-    ).merge(ParchmentHeuristics.fallback);
-    final doc = ParchmentDocument.fromJson([
-      {"insert": "\n"},
-    ], heuristics: heuristics);
-    _controller = FleatherController(document: doc);
-    print("FleatherController initialized successfully.");
-  }
-
   @override
   void dispose() {
     _debounce?.cancel();
     _titleController.dispose();
-    _controller?.dispose();
     super.dispose();
   }
 
@@ -91,11 +72,10 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     final singleNoteState = ref.watch(singleNoteControllerProvider);
 
     if (singleNoteState.note != null &&
-        _titleController.text !=
-            singleNoteState
-                .note!
-                .title // add this check, so that cursor position not reset for the same title
-                ) {
+            _titleController.text !=
+                singleNoteState.note!
+                    .title // add this check, so that cursor position will not reset for the same title
+        ) {
       _titleController.text = singleNoteState.note!.title;
     }
 
@@ -180,9 +160,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
             controller: _titleController,
             onChanged: _onTitleChanged,
             decoration: InputDecoration(
-              hintText: state.note!.title.isNotEmpty
-                  ? state.note!.title
-                  : 'Untitled',
+              hintText:
+                  state.note!.title.isNotEmpty ? state.note!.title : 'Untitled',
               hintStyle: BrandTextStyles.h2.copyWith(
                 color: BrandColors.placeholder,
               ),
@@ -199,86 +178,31 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
             textAlign: TextAlign.left,
           ),
           const SizedBox(height: BrandSpacing.lg),
-          if (_controller != null)
-            FleatherToolbar.basic(
-              controller: _controller!,
-              editorKey: _editorKey,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BrandRadius.medium,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          Divider(height: 1, thickness: 1, color: BrandColors.subtleGrey),
-          Expanded(
-            child: _controller == null
+            height: 400,
+            width: double.infinity,
+            child: _editorState == null
                 ? const Center(child: CircularProgressIndicator())
-                : Stack(
-                    children: [
-                      if (_isDocumentEmpty)
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              left: BrandSpacing.md,
-                              right: BrandSpacing.md,
-                              top: BrandSpacing.lg,
-                            ),
-                            child: Text(
-                              'Start typing your note here...',
-                              style: BrandTextStyles.small.copyWith(
-                                color: BrandColors.placeholder,
-                              ),
-                            ),
-                          ),
-                        ),
-                      FleatherEditor(
-                        controller: _controller!,
-                        focusNode: _focusNode,
-                        editorKey: _editorKey,
-                        maxContentWidth: 1000,
-                        padding: const EdgeInsets.all(BrandSpacing.md),
-                      ),
-                    ],
+                : AppFlowyEditor(
+                    editorState: _editorState,
+                    autoFocus: true,
+                    enableAutoComplete: true,
+                    blockComponentBuilders: standardBlockComponentBuilderMap,
                   ),
           ),
         ],
       ),
     );
-  }
-}
-
-/// This is an example insert rule that will insert a new line before and
-/// after inline image embed.
-class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
-  @override
-  Delta? apply(Delta document, int index, Object data) {
-    if (data is! String) return null;
-
-    final iter = DeltaIterator(document);
-    final previous = iter.skip(index);
-    final target = iter.next();
-    final cursorBeforeInlineEmbed = _isInlineImage(target.data);
-    final cursorAfterInlineEmbed =
-        previous != null && _isInlineImage(previous.data);
-
-    if (cursorBeforeInlineEmbed || cursorAfterInlineEmbed) {
-      final delta = Delta()..retain(index);
-      if (cursorAfterInlineEmbed && !data.startsWith('\n')) {
-        delta.insert('\n');
-      }
-      delta.insert(data);
-      if (cursorBeforeInlineEmbed && !data.endsWith('\n')) {
-        delta.insert('\n');
-      }
-      return delta;
-    }
-    return null;
-  }
-
-  bool _isInlineImage(Object data) {
-    if (data is EmbeddableObject) {
-      return data.type == 'image' && data.inline;
-    }
-    if (data is Map) {
-      return data[EmbeddableObject.kTypeKey] == 'image' &&
-          data[EmbeddableObject.kInlineKey];
-    }
-    return false;
   }
 }
