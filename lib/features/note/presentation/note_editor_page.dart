@@ -177,7 +177,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
               const SizedBox(height: BrandSpacing.xs),
               Text(
                 'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(state.note!.createdAt.toLocal())}',
-                style: BrandTextStyles.small,
+                style:
+                    BrandTextStyles.small.copyWith(color: BrandColors.subtext),
                 textAlign: TextAlign.left,
               ),
               const SizedBox(height: BrandSpacing.lg),
