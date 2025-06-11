@@ -102,10 +102,13 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                         onDestinationSelected: (index) {
                                           setState(() => selectedIndex = index);
                                         },
-                                        destinations: const [
+                                        destinations: [
                                           NavigationRailDestination(
                                             icon: Icon(Icons.home),
-                                            label: Text('Home'),
+                                            label: Text(
+                                              'Home',
+                                              style: BrandTextStyles.small,
+                                            ),
                                           ),
                                           // tmp comment out
                                           // NavigationRailDestination(
@@ -209,10 +212,7 @@ class _HoverableProfileState extends State<_HoverableProfile> {
                   title: Text('Settings', style: BrandTextStyles.h2),
                   content: Text(
                     'Settings page goes here.',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: BrandColors.subtext,
-                    ),
+                    style: BrandTextStyles.small,
                   ),
                   actions: [
                     TextButton(
@@ -253,21 +253,19 @@ class _HoverableProfileState extends State<_HoverableProfile> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: widget.isExpanded
                 ? Row(
-                    children: const [
+                    children: [
                       CircleAvatar(
                         radius: 16,
                         backgroundColor: BrandColors.primary,
-                        child: Text('S', style: TextStyle(color: Colors.white)),
+                        child: Text('S',
+                            style: BrandTextStyles.body
+                                .copyWith(color: Colors.white)),
                       ),
                       SizedBox(width: 8),
-                      Text(
-                        'Shaw Bin',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: BrandColors.textDark,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      Text('Shaw Bin',
+                          style: BrandTextStyles.small.copyWith(
+                            fontWeight: FontWeight.w800,
+                          )),
                     ],
                   )
                 : Column(

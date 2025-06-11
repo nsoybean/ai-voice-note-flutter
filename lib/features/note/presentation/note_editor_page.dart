@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:ai_voice_note/features/note/presentation/editor.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'package:ai_voice_note/features/home/presentation/home_page.dart';
@@ -12,7 +13,6 @@ import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ai_voice_note/features/note/application/note_controller.dart';
 import 'package:ai_voice_note/features/note/application/single_note_controller.dart';
-import 'package:provider/provider.dart';
 
 class NoteEditorPage extends ConsumerStatefulWidget {
   final String noteId;
@@ -27,18 +27,24 @@ class NoteEditorPage extends ConsumerStatefulWidget {
 
 class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   late TextEditingController _titleController;
-  Timer? _debounce;
-  final FocusNode _focusNode = FocusNode();
 
-  bool _isDocumentEmpty = true; // Variable to track if the document is empty
+  late WidgetBuilder _widgetBuilder;
   late EditorState _editorState;
+  late Future<String> _jsonString;
 
   @override
   void initState() {
     super.initState();
 
-    // editor
-    _editorState = EditorState.blank(withInitialText: true);
+    _widgetBuilder = (context) => MyTextEditor(
+          jsonString: Future<String>.value(jsonEncode(
+            EditorState.blank(withInitialText: true).document.toJson(),
+          ).toString()),
+          onEditorStateChange: (editorState) {
+            _editorState = EditorState.blank(withInitialText: true);
+            print('🚀🚀🚀 ${jsonEncode(_editorState.document.toJson())}');
+          },
+        );
 
     // title controller
     _titleController = TextEditingController();
@@ -53,18 +59,21 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
   @override
   void dispose() {
-    _debounce?.cancel();
     _titleController.dispose();
     super.dispose();
   }
 
-  void _onTitleChanged(String newTitle) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+  void _onTitleDefocused() {
+    final newTitle = _titleController.text.trim();
+    final singleNoteState = ref.read(singleNoteControllerProvider);
+
+    if (newTitle.isNotEmpty &&
+        singleNoteState.note != null &&
+        newTitle != singleNoteState.note!.title) {
       ref
           .read(singleNoteControllerProvider.notifier)
           .updateNoteTitle(widget.noteId, newTitle);
-    });
+    }
   }
 
   @override
@@ -72,10 +81,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     final singleNoteState = ref.watch(singleNoteControllerProvider);
 
     if (singleNoteState.note != null &&
-            _titleController.text !=
-                singleNoteState.note!
-                    .title // add this check, so that cursor position will not reset for the same title
-        ) {
+        _titleController.text != singleNoteState.note!.title) {
       _titleController.text = singleNoteState.note!.title;
     }
 
@@ -152,56 +158,52 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     return Align(
       alignment:
           Alignment.centerLeft, // Align all items in the column to the left
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start, // Ensure children are aligned left
-        children: [
-          TextField(
-            controller: _titleController,
-            onChanged: _onTitleChanged,
-            decoration: InputDecoration(
-              hintText:
-                  state.note!.title.isNotEmpty ? state.note!.title : 'Untitled',
-              hintStyle: BrandTextStyles.h2.copyWith(
-                color: BrandColors.placeholder,
-              ),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
-            style: BrandTextStyles.h2,
-            textAlign: TextAlign.left,
-          ),
-          const SizedBox(height: BrandSpacing.xs),
-          Text(
-            'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(state.note!.createdAt.toLocal())}',
-            style: BrandTextStyles.small,
-            textAlign: TextAlign.left,
-          ),
-          const SizedBox(height: BrandSpacing.lg),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BrandRadius.medium,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            height: 400,
-            width: double.infinity,
-            child: _editorState == null
-                ? const Center(child: CircularProgressIndicator())
-                : AppFlowyEditor(
-                    editorState: _editorState,
-                    autoFocus: true,
-                    enableAutoComplete: true,
-                    blockComponentBuilders: standardBlockComponentBuilderMap,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 900), // Set max width to 800
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // Ensure children are aligned left
+            children: [
+              Focus(
+                onFocusChange: (hasFocus) {
+                  if (!hasFocus) {
+                    _onTitleDefocused();
+                  }
+                },
+                child: TextField(
+                  controller: _titleController,
+                  onEditingComplete: _onTitleDefocused,
+                  decoration: InputDecoration(
+                    hintText: state.note!.title.isNotEmpty
+                        ? state.note!.title
+                        : 'Untitled',
+                    hintStyle: BrandTextStyles.h2.copyWith(
+                      color: BrandColors.placeholder,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
                   ),
+                  style: BrandTextStyles.h2,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              const SizedBox(height: BrandSpacing.xs),
+              Text(
+                'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(state.note!.createdAt.toLocal())}',
+                style: BrandTextStyles.small,
+                textAlign: TextAlign.left,
+              ),
+              const SizedBox(height: BrandSpacing.lg),
+              Expanded(
+                child: SafeArea(
+                  maintainBottomViewPadding: true,
+                  child: _widgetBuilder(context),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

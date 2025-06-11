@@ -153,7 +153,7 @@ class VoiceNoteCard extends StatefulWidget {
   final WidgetRef ref; // Add ref to the constructor
 
   const VoiceNoteCard({Key? key, required this.note, required this.ref})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<VoiceNoteCard> createState() => _VoiceNoteCardState();
@@ -227,7 +227,8 @@ class _VoiceNoteCardState extends State<VoiceNoteCard> {
                           DateFormat(
                             'hh:mm a',
                           ).format(widget.note.createdAt.toLocal()),
-                          style: BrandTextStyles.extraSmall,
+                          style: BrandTextStyles.extraSmall
+                              .copyWith(color: BrandColors.subtext),
                         ),
                       ],
                     ),

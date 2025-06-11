@@ -18,6 +18,9 @@ class BrandColors {
     0xFF111827,
   ); // Default text for light mode
   static const Color textLight = Colors.white; // Text for dark mode
+  static const Color textPrimary = textDark; // Use existing textDark for primary text
+  static const Color menuText = textDark; // Use existing textDark for menu text
+  static const Color headingText = textDark; // Use existing textDark for heading text
 
   // 🌙 Optional Dark Theme Shades
   static const Color darkSurface = Color(
@@ -29,8 +32,15 @@ class BrandColors {
   static const Color warning = Color(0xFFFFF7CD); // Light pastel yellow
   static const Color error = Color(0xFFFECACA); // Light pastel red
 
-  // 🖋️ Placeholder Color
+  // Additional Colors for Editor
+  static const Color selection = Color(0xFFCCE7FF); // Light blue for selection
+  static const Color codeText = Color(0xFF4A5568); // Dark grey for code text
+
+  // Placeholder Color
   static const Color placeholder = Color(
     0xFF9CA3AF,
   ); // Cool grey for placeholder text
+
+  // Highlight Color
+  static const Color highlight = Color(0xFFFFE066); // Light yellow for highlights
 }

@@ -27,11 +27,11 @@ class _AuthHomePageState extends ConsumerState<AuthHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Logo
-            const Text('🧠', style: BrandTextStyles.h1),
+            Text('🧠', style: BrandTextStyles.h1),
             const SizedBox(height: 24),
 
             // Headline
-            const Text(
+            Text(
               'Your AI Meeting Memory',
               style: BrandTextStyles.h2,
               textAlign: TextAlign.center,
@@ -104,7 +104,7 @@ class _AuthHomePageState extends ConsumerState<AuthHomePage> {
                   checkColor: Colors.white,
                   activeColor: BrandColors.primary,
                 ),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     text: 'I agree to the ',
                     style: BrandTextStyles.small,
