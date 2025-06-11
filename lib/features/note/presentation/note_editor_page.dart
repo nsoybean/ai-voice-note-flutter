@@ -38,40 +38,29 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
     // Trigger the load when page opens
     Future.microtask(() async {
-      ref
-          .read(singleNoteControllerProvider.notifier)
-          .loadNoteById(widget.noteId);
+      final notifier = ref.read(singleNoteControllerProvider.notifier);
+
+      // clear state
+      notifier.clearData();
+
+      // refetch
+      notifier.loadNoteById(widget.noteId);
     });
   }
 
   @override
   void dispose() {
-    // Clear all data when the widget is disposed
-    ref.read(singleNoteControllerProvider.notifier).clearData();
+    ref.invalidate(singleNoteControllerProvider);
     _titleController.dispose();
     super.dispose();
   }
 
   @override
-  void didUpdateWidget(NoteEditorPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.noteId != widget.noteId) {
-      // Reset the editor state when the noteId changes
-      _editorState = null;
-      // Trigger the load for the new noteId
-      Future.microtask(() async {
-        await ref
-            .read(singleNoteControllerProvider.notifier)
-            .loadNoteById(widget.noteId);
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final singleNoteState = ref.watch(singleNoteControllerProvider);
+    print('🚀 single note state title: ${singleNoteState.note?.title}');
 
+    // set title
     if (singleNoteState.note != null &&
         _titleController.text != singleNoteState.note!.title) {
       _titleController.text = singleNoteState.note!.title;
@@ -148,7 +137,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     }
 
     // Init editor state when the note loads
-    _editorState ??= EditorState(
+    _editorState = EditorState(
       document: Document.fromJson(state.note!.content),
     );
 
