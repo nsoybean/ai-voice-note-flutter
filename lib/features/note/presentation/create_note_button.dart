@@ -26,10 +26,6 @@ class CreateNoteButton extends ConsumerWidget {
         try {
           final newNote =
               await ref.read(noteControllerProvider.notifier).create();
-          print('New note created: ${newNote?.id}');
-          print('New note created: ${newNote?.title}');
-          print('New note created: ${newNote?.createdAt}');
-          print('New note created: ${newNote?.content}');
           if (newNote != null) {
             final created = Navigator.push(
               context,
