@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:ai_voice_note/features/note/domain/note.dart';
 import 'package:ai_voice_note/features/note/presentation/editor.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:intl/intl.dart';
@@ -57,13 +58,17 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final singleNoteState = ref.watch(singleNoteControllerProvider);
-    // print('🚀 single note state title: ${singleNoteState.note?.title}');
+    final singleNoteState = ref.watch(
+        singleNoteControllerProvider); // 'watch' rebuilds on state changes
 
-    // set title
-    if (singleNoteState.note != null &&
-        _titleController.text != singleNoteState.note!.title) {
-      _titleController.text = singleNoteState.note!.title;
+    // Update the title in the TextEditingController if the state has data and the title is different
+    if (singleNoteState.value != null) {
+      final noteTitle = singleNoteState.value?.title ?? '';
+      if (_titleController.text != noteTitle) {
+        final currentPosition = _titleController.selection;
+        _titleController.text = noteTitle;
+        _titleController.selection = currentPosition;
+      }
     }
 
     return Scaffold(
@@ -95,123 +100,126 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     );
   }
 
-  Widget _buildEditorOrError(SingleNoteState state, BuildContext context) {
-    if (state.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (state.note == null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.search_off, size: 64, color: BrandColors.subtext),
-            const SizedBox(height: BrandSpacing.md),
-            Text(
-              "Note not found",
-              style: BrandTextStyles.h2.copyWith(color: BrandColors.textDark),
-            ),
-            const SizedBox(height: BrandSpacing.sm),
-            Text(
-              "We couldn’t find the note you’re looking for.\nIt may have been deleted or the link is incorrect.",
-              style: BrandTextStyles.small,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: BrandSpacing.lg),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: BrandColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: BrandSpacing.xl,
-                  vertical: BrandSpacing.sm,
+  Widget _buildEditorOrError(AsyncValue<Note?> state, BuildContext context) {
+    return state.when(
+      data: (note) {
+        if (note == null) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.search_off, size: 64, color: BrandColors.subtext),
+                const SizedBox(height: BrandSpacing.md),
+                Text(
+                  "Note not found",
+                  style:
+                      BrandTextStyles.h2.copyWith(color: BrandColors.textDark),
                 ),
-              ),
-              child: const Text("Back to Notes"),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Init editor state when the note loads
-    _editorState = EditorState(
-      document: Document.fromJson(state.note!.content),
-    );
-
-    return Align(
-      alignment:
-          Alignment.centerLeft, // Align all items in the column to the left
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 900), // Set max width to 800
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start, // Ensure children are aligned left
-            children: [
-              Focus(
-                onFocusChange: (hasFocus) {
-                  if (!hasFocus) {
-                    _onTitleDefocused();
-                  }
-                },
-                child: TextField(
-                  controller: _titleController,
-                  onEditingComplete: _onTitleDefocused,
-                  decoration: InputDecoration(
-                    hintText: state.note!.title.isNotEmpty
-                        ? state.note!.title
-                        : 'Untitled',
-                    hintStyle: BrandTextStyles.h2.copyWith(
-                      color: BrandColors.placeholder,
+                const SizedBox(height: BrandSpacing.sm),
+                Text(
+                  "We couldn’t find the note you’re looking for.\nIt may have been deleted or the link is incorrect.",
+                  style: BrandTextStyles.small,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: BrandSpacing.lg),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: BrandColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BrandRadius.medium),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: BrandSpacing.xl,
+                      vertical: BrandSpacing.sm,
                     ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
                   ),
-                  style: BrandTextStyles.h2,
-                  textAlign: TextAlign.left,
+                  child: const Text("Back to Notes"),
                 ),
-              ),
-              const SizedBox(height: BrandSpacing.xs),
-              Text(
-                'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(state.note!.createdAt.toLocal())}',
-                style:
-                    BrandTextStyles.small.copyWith(color: BrandColors.subtext),
-                textAlign: TextAlign.left,
-              ),
-              const SizedBox(height: BrandSpacing.lg),
-              Expanded(
-                child: SafeArea(
-                    maintainBottomViewPadding: true,
-                    child: Focus(
-                      onFocusChange: (hasFocus) {
-                        if (!hasFocus) {
-                          final newContent = _editorState!.document.toJson();
-                          final singleNoteState =
-                              ref.read(singleNoteControllerProvider);
+              ],
+            ),
+          );
+        }
 
-                          if (singleNoteState.note != null &&
-                              jsonEncode(newContent) !=
-                                  jsonEncode(singleNoteState.note!.content)) {
-                            ref
-                                .read(singleNoteControllerProvider.notifier)
-                                .updateNoteContent(widget.noteId, newContent);
-                          }
-                        }
-                      },
-                      child: MyTextEditor(
-                        jsonString: Future.value(
-                            jsonEncode(_editorState!.document.toJson())),
-                        onEditorStateChange: (newState) {
-                          _editorState = newState;
-                        },
+        // Init editor state when the note loads
+        _editorState = EditorState(
+          document: Document.fromJson(note.content),
+        );
+
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 900),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Focus(
+                    onFocusChange: (hasFocus) {
+                      if (!hasFocus) {
+                        _onTitleDefocused();
+                      }
+                    },
+                    child: TextField(
+                      controller: _titleController,
+                      onEditingComplete: _onTitleDefocused,
+                      decoration: InputDecoration(
+                        hintText:
+                            note.title.isNotEmpty ? note.title : 'Untitled',
+                        hintStyle: BrandTextStyles.h2.copyWith(
+                          color: BrandColors.placeholder,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                    )),
+                      style: BrandTextStyles.h2,
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  const SizedBox(height: BrandSpacing.xs),
+                  Text(
+                    'Created At: ${DateFormat('MMM dd, yyyy hh:mm a').format(note.createdAt.toLocal())}',
+                    style: BrandTextStyles.small
+                        .copyWith(color: BrandColors.subtext),
+                    textAlign: TextAlign.left,
+                  ),
+                  const SizedBox(height: BrandSpacing.lg),
+                  Expanded(
+                    child: SafeArea(
+                      maintainBottomViewPadding: true,
+                      child: Focus(
+                        onFocusChange: (hasFocus) {
+                          if (!hasFocus) {
+                            final newContent = _editorState!.document.toJson();
+                            if (jsonEncode(newContent) !=
+                                jsonEncode(note.content)) {
+                              ref
+                                  .read(singleNoteControllerProvider.notifier)
+                                  .updateNoteContent(widget.noteId, newContent);
+                            }
+                          }
+                        },
+                        child: MyTextEditor(
+                          jsonString: Future.value(
+                              jsonEncode(_editorState!.document.toJson())),
+                          onEditorStateChange: (newState) {
+                            _editorState = newState;
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(
+        child: Text(
+          'Error: $error',
+          style: BrandTextStyles.h2.copyWith(color: BrandColors.error),
         ),
       ),
     );
@@ -221,9 +229,9 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     final newTitle = _titleController.text.trim();
     final singleNoteState = ref.read(singleNoteControllerProvider);
 
-    if (newTitle.isNotEmpty &&
-        singleNoteState.note != null &&
-        newTitle != singleNoteState.note!.title) {
+    if (singleNoteState.value != null &&
+        newTitle.isNotEmpty &&
+        newTitle != singleNoteState.value!.title.trim()) {
       ref
           .read(singleNoteControllerProvider.notifier)
           .updateNoteTitle(widget.noteId, newTitle);

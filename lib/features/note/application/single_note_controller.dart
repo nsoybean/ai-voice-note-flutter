@@ -1,52 +1,35 @@
-import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/note.dart';
 import '../infrastructure/note_service.dart';
 
-class SingleNoteState {
-  final Note? note;
-  final bool isLoading;
-  final String? error;
-
-  SingleNoteState({this.note, this.isLoading = false, this.error});
-
-  SingleNoteState copyWith({Note? note, bool? isLoading, String? error}) {
-    return SingleNoteState(
-      note: note ?? this.note,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
-}
-
 final singleNoteControllerProvider =
-    StateNotifierProvider<SingleNoteController, SingleNoteState>((ref) {
+    StateNotifierProvider<SingleNoteController, AsyncValue<Note?>>((ref) {
   return SingleNoteController(noteService: ref.read(noteServiceProvider));
 });
 
-class SingleNoteController extends StateNotifier<SingleNoteState> {
+class SingleNoteController extends StateNotifier<AsyncValue<Note?>> {
   final NoteService noteService;
 
-  SingleNoteController({required this.noteService}) : super(SingleNoteState());
+  SingleNoteController({required this.noteService})
+      : super(const AsyncValue.loading());
 
   Future<void> loadNoteById(String noteId) async {
-    state = state.copyWith(isLoading: true);
+    state = const AsyncValue.loading();
     try {
       final note = await noteService.fetchNoteById(noteId);
-      state = state.copyWith(note: note, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
+      state = AsyncValue.data(note);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
   }
 
   Future<void> updateNoteTitle(String noteId, String newTitle) async {
     try {
       await noteService.updateNoteTitle(noteId, newTitle);
-      final updatedNote = state.note?.copyWith(title: newTitle);
-      state = state.copyWith(note: updatedNote);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+      final updatedNote = state.value?.copyWith(title: newTitle);
+      state = AsyncValue.data(updatedNote);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
   }
 
@@ -54,24 +37,24 @@ class SingleNoteController extends StateNotifier<SingleNoteState> {
       String noteId, Map<String, Object> newContent) async {
     try {
       await noteService.updateNoteContent(noteId, newContent);
-      final updatedNote = state.note?.copyWith(content: newContent);
-      state = state.copyWith(note: updatedNote);
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+      final updatedNote = state.value?.copyWith(content: newContent);
+      state = AsyncValue.data(updatedNote);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
   }
 
   Future<void> deleteNoteById(String noteId) async {
-    // state = state.copyWith(isLoading: true);
+    state = const AsyncValue.loading();
     try {
       await noteService.deleteNoteById(noteId);
-      // state = state.copyWith(note: null, isLoading: false);
-    } catch (e) {
-      // state = state.copyWith(error: e.toString(), isLoading: false);
+      state = const AsyncValue.data(null);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
   }
 
   void clearData() {
-    state = SingleNoteState();
+    state = const AsyncValue.data(null);
   }
 }
