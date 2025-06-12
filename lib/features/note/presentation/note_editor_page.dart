@@ -61,6 +61,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     final singleNoteState = ref.watch(
         singleNoteControllerProvider); // 'watch' rebuilds on state changes
 
+    print('🚀 content ${singleNoteState.value?.content}');
+
     // Update the title in the TextEditingController if the state has data and the title is different
     if (singleNoteState.value != null) {
       final noteTitle = singleNoteState.value?.title ?? '';
@@ -143,7 +145,9 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
         // Init editor state when the note loads
         _editorState = EditorState(
-          document: Document.fromJson(note.content),
+          document: note.content.isNotEmpty
+              ? Document.fromJson(note.content)
+              : Document.blank(),
         );
 
         return Align(
