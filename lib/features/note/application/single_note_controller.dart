@@ -37,8 +37,9 @@ class SingleNoteController extends StateNotifier<AsyncValue<Note?>> {
       String noteId, Map<String, Object> newContent) async {
     try {
       await noteService.updateNoteContent(noteId, newContent);
-      final updatedNote = state.value?.copyWith(content: newContent);
-      state = AsyncValue.data(updatedNote);
+      state.value?.copyWith(
+          content:
+              newContent); // do not update state value here else widget will rebuild, causing editor cursor to reset
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
