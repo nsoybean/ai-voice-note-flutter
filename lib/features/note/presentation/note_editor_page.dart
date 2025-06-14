@@ -98,6 +98,22 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           ),
         ],
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: FloatingActionButton(
+            tooltip: "Record Audio",
+            onPressed: () {
+              // Add your recording logic here
+            },
+            backgroundColor: BrandColors.primary,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.mic, color: Colors.white),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
