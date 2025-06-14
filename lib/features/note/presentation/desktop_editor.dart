@@ -87,6 +87,7 @@ class _DesktopEditorState extends State<DesktopEditor> {
         textDirection: widget.textDirection,
         child: AppFlowyEditor(
           autoFocus: true,
+          showMagnifier: true,
           editorState: editorState,
           editorScrollController: editorScrollController,
           blockComponentBuilders: blockComponentBuilders,
