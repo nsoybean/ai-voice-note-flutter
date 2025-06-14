@@ -95,9 +95,9 @@ class _EditorState extends State<MyTextEditor> {
                     ),
                   );
 
-                  editorState.logConfiguration
-                    ..handler = debugPrint
-                    ..level = AppFlowyEditorLogLevel.all;
+                  // editorState.logConfiguration
+                  //   ..handler = debugPrint
+                  //   ..level = AppFlowyEditorLogLevel.all;
 
                   editorState.transactionStream.listen((event) {
                     if (event.$1 == TransactionTime.after) {

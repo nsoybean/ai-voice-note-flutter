@@ -29,6 +29,7 @@ class NoteEditorPage extends ConsumerStatefulWidget {
 class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   late TextEditingController _titleController;
   EditorState? _editorState;
+  String? _lastSavedContentString; // Cache for the last saved content
 
   @override
   void initState() {
@@ -150,6 +151,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
               : Document.blank(),
         );
 
+        _lastSavedContentString = _editorState?.document.toJson().toString();
+
         return Align(
           alignment: Alignment.centerLeft,
           child: Center(
@@ -194,12 +197,18 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
                       child: Focus(
                         onFocusChange: (hasFocus) {
                           if (!hasFocus) {
-                            final newContent = _editorState!.document.toJson();
-                            if (jsonEncode(newContent) !=
-                                jsonEncode(note.content)) {
+                            final currentContentString =
+                                _editorState!.document.toJson().toString();
+                            if (currentContentString !=
+                                _lastSavedContentString) {
+                              // uncomment to debug
+                              // print('🚀 Saving changed content');
                               ref
                                   .read(singleNoteControllerProvider.notifier)
-                                  .updateNoteContent(widget.noteId, newContent);
+                                  .updateNoteContent(widget.noteId,
+                                      _editorState!.document.toJson());
+                              _lastSavedContentString =
+                                  _editorState!.document.toJson().toString();
                             }
                           }
                         },
