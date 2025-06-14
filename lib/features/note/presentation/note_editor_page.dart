@@ -62,8 +62,6 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     final singleNoteState = ref.watch(
         singleNoteControllerProvider); // 'watch' rebuilds on state changes
 
-    print('🚀 content ${singleNoteState.value?.content}');
-
     // Update the title in the TextEditingController if the state has data and the title is different
     if (singleNoteState.value != null) {
       final noteTitle = singleNoteState.value?.title ?? '';
