@@ -29,7 +29,7 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>App needs mic access to record audio</string>
+	<string>App needs mic access for audio streaming</string>
 
 </dict>
 </plist>

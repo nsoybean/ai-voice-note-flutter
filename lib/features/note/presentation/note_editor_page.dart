@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:ai_voice_note/core/audio_streamer.dart';
 import 'package:ai_voice_note/features/note/domain/note.dart';
 import 'package:ai_voice_note/features/note/presentation/editor.dart';
+import 'package:ai_voice_note/features/shared/audio_upload_service.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:intl/intl.dart';
 
@@ -14,6 +16,7 @@ import 'package:ai_voice_note/theme/brand_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ai_voice_note/features/note/application/note_controller.dart';
 import 'package:ai_voice_note/features/note/application/single_note_controller.dart';
+import 'package:ai_voice_note/features/shared/recording_state_provider.dart';
 
 class NoteEditorPage extends ConsumerStatefulWidget {
   final String noteId;
@@ -98,21 +101,10 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           ),
         ],
       ),
+      // Record button
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: FloatingActionButton(
-            tooltip: "Record Audio",
-            onPressed: () {
-              // Add your recording logic here
-            },
-            backgroundColor: BrandColors.primary,
-            shape: const CircleBorder(),
-            child: const Icon(Icons.mic, color: Colors.white),
-          ),
-        ),
-      ),
+          padding: const EdgeInsets.only(bottom: BrandSpacing.md),
+          child: AudioRecorderWidget()),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
@@ -263,5 +255,37 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           .read(singleNoteControllerProvider.notifier)
           .updateNoteTitle(widget.noteId, newTitle);
     }
+  }
+}
+
+class AudioRecorderWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isRecording = ref.watch(recordingStateProvider);
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: FloatingActionButton(
+        tooltip: isRecording ? "Stop Recording" : "Record Audio",
+        onPressed: () async {
+          if (isRecording) {
+            await AudioStreamer.stop(ref);
+          } else {
+            await AudioStreamer.start(ref);
+
+            // Start uploading audio chunks
+            final audioUploadService = ref.read(audioUploadServiceProvider);
+            audioUploadService.listenAudioStreamAndUpload();
+          }
+        },
+        backgroundColor: isRecording ? Colors.red : BrandColors.primary,
+        shape: const CircleBorder(),
+        child: AnimatedOpacity(
+          opacity: isRecording ? 0.5 : 1.0,
+          duration: const Duration(milliseconds: 500),
+          child: const Icon(Icons.mic, color: Colors.white),
+        ),
+      ),
+    );
   }
 }
