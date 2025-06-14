@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeInOut,
-                      width: isSidebarExpanded ? 200 : 0,
+                      width: isSidebarExpanded ? 180 : 0,
                       child: isSidebarExpanded
                           ? Container(
                               decoration: BoxDecoration(
