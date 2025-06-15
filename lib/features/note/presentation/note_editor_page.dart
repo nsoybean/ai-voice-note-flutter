@@ -270,17 +270,19 @@ class AudioRecorderWidget extends ConsumerWidget {
         tooltip: isRecording ? "Stop Recording" : "Record Audio",
         onPressed: () async {
           if (isRecording) {
+            // stop recording
             await AudioStreamer.stop(ref);
 
-            // Stop WebSocket connection
+            // stop websocket connection
             audioUploadService.stopWebSocketConnection();
           } else {
+            // start recording
             await AudioStreamer.start(ref);
 
-            // Start WebSocket connection
+            // start websocket connection
             audioUploadService.startWebSocketConnection();
 
-            // Start uploading audio chunks
+            // stream to server
             audioUploadService.listenAudioStreamAndUpload();
           }
         },
