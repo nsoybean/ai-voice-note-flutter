@@ -1,45 +1,89 @@
-import 'dart:typed_data';
+import 'dart:convert';
+
 import 'package:ai_voice_note/core/audio_streamer.dart';
 import 'package:ai_voice_note/core/http_client.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-
-class AudioUploadService {
-  final HttpClientWrapper httpClient;
-  final String backendUrl;
-
-  AudioUploadService({required this.httpClient, required this.backendUrl});
-
-  void listenAudioStreamAndUpload() {
-    AudioStreamer.audioStream().listen((bytes) async {
-      // log
-      print("📁 Received audio chunk: ${bytes.length} bytes");
-      // await _sendToBackend(bytes);
-    });
-  }
-
-  Future<void> _sendToBackend(Uint8List bytes) async {
-    try {
-      final response = await httpClient.post(
-        Uri.parse(backendUrl),
-        headers: {'Content-Type': 'application/octet-stream'},
-        body: bytes,
-      );
-
-      if (response.statusCode != 200) {
-        print('Failed to upload audio chunk: ${response.statusCode}');
-      } else {
-        print('Audio chunk uploaded successfully');
-      }
-    } catch (e) {
-      print('Error uploading audio chunk: $e');
-    }
-  }
-}
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 final audioUploadServiceProvider = Provider<AudioUploadService>((ref) {
   final httpClient = HttpClientWrapper(http.Client());
-  const backendUrl =
-      'http://your-backend-url.com/upload'; // Replace with your backend URL
-  return AudioUploadService(httpClient: httpClient, backendUrl: backendUrl);
+  const backendWsUrl = 'http://localhost:3000'; // Replace with your backend URL
+
+  return AudioUploadService(httpClient: httpClient, backendWsUrl: backendWsUrl);
 });
+
+class AudioUploadService {
+  final HttpClientWrapper httpClient;
+  final String backendWsUrl;
+  late IO.Socket socket;
+
+  AudioUploadService({required this.httpClient, required this.backendWsUrl}) {
+    socket = IO.io(
+      backendWsUrl,
+      IO.OptionBuilder()
+          .setTransports(['websocket'])
+          .disableAutoConnect()
+          // Use WebSocket transport
+          .build(),
+    );
+
+    socket.onConnect((_) {
+      print("🔗 WebSocket connection established");
+    });
+
+    socket.onDisconnect((_) {
+      print("❌ WebSocket connection disconnected");
+    });
+
+    socket.on('error', (data) {
+      print("⚠️ WebSocket error: $data");
+    });
+
+    // from server
+    socket.on('transcriptAudioResponse', (data) {
+      if (data is Map<String, dynamic> && data.containsKey('text')) {
+        final String text = data['text'];
+        print("📝 Received audio transcript: $text");
+      } else {
+        print("⚠️ Unexpected data format received: $data");
+      }
+    });
+  }
+
+  void listenAudioStreamAndUpload() {
+    AudioStreamer.audioStream().listen((bytes) async {
+      // Log the received audio chunk
+      print("📁 Received audio chunk: ${bytes.length} bytes");
+
+      // check if socket is ready before emitting
+      if (!socket.connected) {
+        print("⚠️ WebSocket is not connected. Cannot send audio data.");
+        return;
+      } else {
+        // log
+        print("📤 Sending audio data to WebSocket");
+        // emit
+        socket.emit(
+            'transcriptAudio',
+            jsonEncode({
+              'data': bytes,
+            }));
+      }
+    });
+  }
+
+  void startWebSocketConnection() {
+    if (!socket.connected) {
+      socket.connect();
+      print('🔗 WebSocket connection started');
+    } else {
+      print('⚠️ WebSocket is already connected');
+    }
+  }
+
+  void stopWebSocketConnection() {
+    socket.dispose();
+    print('❌ WebSocket connection stopped');
+  }
+}

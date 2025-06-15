@@ -49,6 +49,7 @@ dependencies:
   flutter_localization: ^0.3.2
   appflowy_editor: ^5.2.0
   google_fonts: ^6.2.1
+  socket_io_client: ^3.1.2
 
 dev_dependencies:
   flutter_test:

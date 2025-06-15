@@ -262,6 +262,7 @@ class AudioRecorderWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isRecording = ref.watch(recordingStateProvider);
+    final audioUploadService = ref.read(audioUploadServiceProvider);
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -270,11 +271,16 @@ class AudioRecorderWidget extends ConsumerWidget {
         onPressed: () async {
           if (isRecording) {
             await AudioStreamer.stop(ref);
+
+            // Stop WebSocket connection
+            audioUploadService.stopWebSocketConnection();
           } else {
             await AudioStreamer.start(ref);
 
+            // Start WebSocket connection
+            audioUploadService.startWebSocketConnection();
+
             // Start uploading audio chunks
-            final audioUploadService = ref.read(audioUploadServiceProvider);
             audioUploadService.listenAudioStreamAndUpload();
           }
         },
