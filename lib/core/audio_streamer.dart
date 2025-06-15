@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/shared/recording_state_provider.dart';
 
 class AudioStreamer {
-  static const _method = MethodChannel('audio_streamer');
-  static const _events = EventChannel('audio_streamer_events');
+  static const _method =
+      MethodChannel('audio_streamer'); // to match native code
+  static const _events =
+      EventChannel('audio_streamer_events'); // to match native code
 
   static Future<void> start(WidgetRef ref) async {
     await _method.invokeMethod('start');
