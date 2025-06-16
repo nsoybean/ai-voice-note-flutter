@@ -195,7 +195,7 @@ class _HoverableProfileState extends State<_HoverableProfile> {
           // border: Border.all(color: BrandColors.backgroundDark),
         ),
         child: PopupMenuButton<String>(
-          offset: const Offset(0, -10),
+          offset: const Offset(0, -100),
           menuPadding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(borderRadius: BrandRadius.medium),
           color: Colors.white,

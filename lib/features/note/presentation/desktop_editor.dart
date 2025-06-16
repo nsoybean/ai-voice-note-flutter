@@ -193,8 +193,9 @@ class _DesktopEditorState extends State<DesktopEditor> {
   // showcase 2: customize the block style
   Map<String, BlockComponentBuilder> _buildBlockComponentBuilders() {
     final map = {
-      ...standardBlockComponentBuilderMap,
-
+      ...standardBlockComponentBuilderMap
+        ..removeWhere(
+            (key, _) => key == ImageBlockKeys.type), // tmp remove image block
       // columns block
       ColumnBlockKeys.type: ColumnBlockComponentBuilder(),
       ColumnsBlockKeys.type: ColumnsBlockComponentBuilder(),
@@ -219,15 +220,16 @@ class _DesktopEditorState extends State<DesktopEditor> {
                 BrandTextStyles.body.copyWith(color: BrandColors.placeholder)));
 
     // customize the image block component to show a menu
-    map[ImageBlockKeys.type] = ImageBlockComponentBuilder(
-      showMenu: true,
-      menuBuilder: (node, _) {
-        return const Positioned(
-          right: 10,
-          child: Text('⭐️ Here is a menu!'),
-        );
-      },
-    );
+
+    // map[ImageBlockKeys.type] = ImageBlockComponentBuilder(
+    //   showMenu: true,
+    //   menuBuilder: (node, _) {
+    //     return const Positioned(
+    //       right: 10,
+    //       child: Text('⭐️ Here is a menu!'),
+    //     );
+    //   },
+    // );
 
     // customize the heading block component
     final levelToFontSize = [
