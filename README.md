@@ -1,6 +1,12 @@
-# AI Voice Note
+## Screenshots
+<!-- image from ./asset -->
+![Home](./asset/home.png)
+![Note](./asset/note.png)
 
-AI Voice Note Flutter is a cross-platform application designed to provide seamless voice note-taking with advanced features powered by AI. This project leverages Flutter for a beautiful, consistent experience across devices.
+# 🧠 AI Meeting Memory
+
+* Record voice, get transcript, ask questions, turn conversation into clear actions - instantly. 
+* Advanced features powered by AI. 
 
 ## Key Features
 
@@ -28,10 +34,6 @@ cd ai-voice-note-flutter
 flutter pub get
 flutter run
 ```
-
-## Screenshots
-
-
 
 ## Contributing
 
